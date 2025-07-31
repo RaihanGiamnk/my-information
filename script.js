@@ -7,8 +7,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initialize all components
     initHeaderEffects();
     initNavigation();
-    initYouTubeStats(YOUTUBE_API_KEY, CHANNEL_ID);
-    initYouTubeVideos(YOUTUBE_API_KEY, CHANNEL_ID);
+    initYouTubeStats(AIzaSyDSpn25E7vnaiqdONYgZMYf9jg2GJ1ECRc, UCIO4JfMJH2n0q4JuZDWudHA);
+    initYouTubeVideos(AIzaSyDSpn25E7vnaiqdONYgZMYf9jg2GJ1ECRc, UCIO4JfMJH2n0q4JuZDWudHA);
     initAvatarEffects();
     initContactForm();
     initMoleculeBackground();
