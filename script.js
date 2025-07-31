@@ -150,42 +150,54 @@ async function loadYouTubeVideos(apiKey, channelId) {
         const searchResponse = await fetch(
             `https://www.googleapis.com/youtube/v3/search?key=${apiKey}&channelId=${channelId}&part=snippet,id&order=date&maxResults=12`
         );
+        
+        if (!searchResponse.ok) {
+            throw new Error(`YouTube API error: ${searchResponse.status}`);
+        }
+        
         const searchData = await searchResponse.json();
         
-        if (searchData.items?.length > 0) {
-            // Get video IDs for statistics
-            const videoIds = searchData.items
-                .filter(item => item.id.kind === "youtube#video")
-                .map(item => item.id.videoId)
-                .join(',');
-            
-            // Fetch statistics for these videos
-            const statsResponse = await fetch(
-                `https://www.googleapis.com/youtube/v3/videos?key=${apiKey}&id=${videoIds}&part=statistics`
-            );
-            const statsData = await statsResponse.json();
-            
-            // Combine video data with statistics
-            const videosWithStats = searchData.items.map(item => {
-                if (item.id.kind === "youtube#video") {
-                    const stats = statsData.items.find(v => v.id === item.id.videoId)?.statistics || {};
-                    return {
-                        ...item,
-                        statistics: stats
-                    };
-                }
-                return item;
-            });
-            
-            renderYouTubeVideos(videosWithStats, container);
-        } else {
-            showNoVideosMessage(container);
+        if (!searchData.items || searchData.items.length === 0) {
+            return showNoVideosMessage(container);
         }
+
+        // Filter only videos (not playlists or channels)
+        const videoItems = searchData.items.filter(item => item.id.kind === "youtube#video");
+        
+        if (videoItems.length === 0) {
+            return showNoVideosMessage(container);
+        }
+
+        // Get video IDs for statistics
+        const videoIds = videoItems.map(item => item.id.videoId).join(',');
+        
+        // Fetch statistics for these videos
+        const statsResponse = await fetch(
+            `https://www.googleapis.com/youtube/v3/videos?key=${apiKey}&id=${videoIds}&part=statistics`
+        );
+        
+        if (!statsResponse.ok) {
+            console.warn('Failed to fetch video statistics, showing videos without stats');
+            return renderYouTubeVideos(videoItems, container);
+        }
+        
+        const statsData = await statsResponse.json();
+        
+        // Combine video data with statistics
+        const videosWithStats = videoItems.map(item => {
+            const stats = statsData.items.find(v => v.id === item.id.videoId)?.statistics || {};
+            return {
+                ...item,
+                statistics: stats
+            };
+        });
+        
+        renderYouTubeVideos(videosWithStats, container);
     } catch (error) {
         console.error('Error loading YouTube videos:', error);
         showLoadError(container);
     }
-}
+            }
 
 function renderYouTubeVideos(videos, container) {
     let videosHTML = '';
@@ -201,8 +213,11 @@ function renderYouTubeVideos(videos, container) {
 }
 
 function createVideoCard(video) {
-    const viewCount = video.statistics?.viewCount ? formatNumber(video.statistics.viewCount) : 'N/A';
-    const likeCount = video.statistics?.likeCount ? formatNumber(video.statistics.likeCount) : 'N/A';
+    // Format numbers or show 'N/A' if not available
+    const formatStat = (stat) => stat ? parseInt(stat).toLocaleString() : 'N/A';
+    
+    const viewCount = formatStat(video.statistics?.viewCount);
+    const likeCount = formatStat(video.statistics?.likeCount);
     
     return `
         <div class="work-card">
@@ -549,4 +564,13 @@ function initTypewriter() {
         }
     }, 100);
         }
-        
+
+function showLoadError(container) {
+    container.innerHTML = `
+        <div class="error">
+            <i class="fas fa-exclamation-circle"></i>
+            <p>Failed to load videos. Please try again later.</p>
+            <p><small>If the problem persists, check your YouTube API key and quota.</small></p>
+        </div>
+    `;
+}
