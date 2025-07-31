@@ -886,11 +886,10 @@ nav a i {
         
 .work-meta {
     display: flex;
-    justify-content: space-between;
+    gap: 1rem;
     color: var(--gray);
     font-size: 0.9rem;
-    flex-wrap: wrap;
-    gap: 0.5rem;
+    margin-top: 0.5rem;
 }
 
 .work-meta span {
@@ -900,5 +899,15 @@ nav a i {
 }
 
 .work-meta i {
-    margin-right: 0;
+    color: var(--secondary);
+}
+.work-info h3 {
+    margin-bottom: 0.8rem;
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-height: 3em;
 }
