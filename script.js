@@ -146,13 +146,38 @@ async function loadYouTubeVideos(apiKey, channelId) {
     container.innerHTML = '<div class="loading-spinner"><i class="fas fa-spinner fa-spin"></i> Loading videos...</div>';
     
     try {
-        const response = await fetch(
+        // First fetch the videos
+        const searchResponse = await fetch(
             `https://www.googleapis.com/youtube/v3/search?key=${apiKey}&channelId=${channelId}&part=snippet,id&order=date&maxResults=12`
         );
-        const data = await response.json();
+        const searchData = await searchResponse.json();
         
-        if (data.items?.length > 0) {
-            renderYouTubeVideos(data.items, container);
+        if (searchData.items?.length > 0) {
+            // Get video IDs for statistics
+            const videoIds = searchData.items
+                .filter(item => item.id.kind === "youtube#video")
+                .map(item => item.id.videoId)
+                .join(',');
+            
+            // Fetch statistics for these videos
+            const statsResponse = await fetch(
+                `https://www.googleapis.com/youtube/v3/videos?key=${apiKey}&id=${videoIds}&part=statistics`
+            );
+            const statsData = await statsResponse.json();
+            
+            // Combine video data with statistics
+            const videosWithStats = searchData.items.map(item => {
+                if (item.id.kind === "youtube#video") {
+                    const stats = statsData.items.find(v => v.id === item.id.videoId)?.statistics || {};
+                    return {
+                        ...item,
+                        statistics: stats
+                    };
+                }
+                return item;
+            });
+            
+            renderYouTubeVideos(videosWithStats, container);
         } else {
             showNoVideosMessage(container);
         }
@@ -176,6 +201,9 @@ function renderYouTubeVideos(videos, container) {
 }
 
 function createVideoCard(video) {
+    const viewCount = video.statistics?.viewCount ? formatNumber(video.statistics.viewCount) : 'N/A';
+    const likeCount = video.statistics?.likeCount ? formatNumber(video.statistics.likeCount) : 'N/A';
+    
     return `
         <div class="work-card">
             <div class="work-thumbnail">
@@ -189,10 +217,17 @@ function createVideoCard(video) {
                 <h3>${video.snippet.title}</h3>
                 <div class="work-meta">
                     <span><i class="fas fa-calendar-alt"></i> ${new Date(video.snippet.publishedAt).toLocaleDateString()}</span>
+                    <span><i class="fas fa-eye"></i> ${viewCount}</span>
+                    <span><i class="fas fa-thumbs-up"></i> ${likeCount}</span>
                 </div>
             </div>
         </div>
     `;
+}
+
+// Helper function to format numbers
+function formatNumber(num) {
+    return parseInt(num).toLocaleString();
 }
 
 function setupVideoThumbnailClickHandlers() {
