@@ -580,3 +580,240 @@ function showLoadError(container) {
         </div>
     `;
 }
+function initFloatingParticles() {
+    const particlesContainer = document.getElementById('particles');
+    if (!particlesContainer) return;
+    
+    const particleCount = 50;
+    const colors = [
+        'rgba(138, 43, 226, 0.5)',    // Purple
+        'rgba(0, 245, 212, 0.5)',     // Teal
+        'rgba(255, 32, 110, 0.5)',    // Pink
+        'rgba(255, 255, 255, 0.3)'    // White
+    ];
+    
+    for (let i = 0; i < particleCount; i++) {
+        const particle = document.createElement('div');
+        particle.classList.add('particle');
+        
+        // Random properties
+        const size = Math.random() * 5 + 1;
+        const posX = Math.random() * 100;
+        const duration = Math.random() * 20 + 10;
+        const delay = Math.random() * 20;
+        const color = colors[Math.floor(Math.random() * colors.length)];
+        
+        // Apply styles
+        particle.style.width = `${size}px`;
+        particle.style.height = `${size}px`;
+        particle.style.left = `${posX}vw`;
+        particle.style.bottom = `-10px`;
+        particle.style.background = color;
+        particle.style.animationDuration = `${duration}s`;
+        particle.style.animationDelay = `${delay}s`;
+        
+        particlesContainer.appendChild(particle);
+    }
+}
+
+// Tambahkan ini ke DOMContentLoaded
+document.addEventListener('DOMContentLoaded', () => {
+    // ... kode yang ada ...
+    initFloatingParticles();
+});
+/**
+ * Bold Interactive Particle Background
+ */
+function initBoldParticleBackground() {
+    const canvas = document.getElementById('interactive-bg');
+    if (!canvas) return;
+    
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    
+    // Enhanced settings for bold effects
+    const settings = {
+        particleCount: 80,
+        baseRadius: 3,
+        maxRadius: 6,
+        lineWidth: 1.5,
+        mouseRadius: 150,
+        repulsionStrength: 0.8,
+        connectionDistance: 120,
+        colors: [
+            'hsla(260, 90%, 70%, 0.8)',
+            'hsla(270, 90%, 70%, 0.8)',
+            'hsla(280, 90%, 70%, 0.8)'
+        ]
+    };
+    
+    const particles = [];
+    const mouse = { x: null, y: null };
+    
+    // Bold Particle Class
+    class Particle {
+        constructor() {
+            this.reset();
+            this.color = settings.colors[Math.floor(Math.random() * settings.colors.length)];
+            this.targetRadius = Math.random() * (settings.maxRadius - settings.baseRadius) + settings.baseRadius;
+            this.currentRadius = 0; // Start at 0 for grow-in effect
+            this.growthRate = Math.random() * 0.1 + 0.05;
+        }
+        
+        reset() {
+            this.x = Math.random() * canvas.width;
+            this.y = Math.random() * canvas.height;
+            this.baseX = this.x;
+            this.baseY = this.y;
+            this.density = (Math.random() * 30) + 10;
+            this.velocity = {
+                x: (Math.random() - 0.5) * 0.5,
+                y: (Math.random() - 0.5) * 0.5
+            };
+        }
+        
+        draw() {
+            // Grow particle to target size
+            if (this.currentRadius < this.targetRadius) {
+                this.currentRadius += this.growthRate;
+            }
+            
+            // Main particle
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.currentRadius, 0, Math.PI * 2);
+            ctx.fillStyle = this.color;
+            
+            // Glow effect
+            ctx.shadowBlur = this.currentRadius * 3;
+            ctx.shadowColor = this.color;
+            ctx.fill();
+            
+            // Reset shadow for other drawings
+            ctx.shadowBlur = 0;
+        }
+        
+        update() {
+            // Mouse interaction - bold repulsion
+            if (mouse.x && mouse.y) {
+                const dx = mouse.x - this.x;
+                const dy = mouse.y - this.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                
+                if (distance < settings.mouseRadius) {
+                    const force = (settings.mouseRadius - distance) / settings.mouseRadius;
+                    const forceX = (dx / distance) * force * this.density * settings.repulsionStrength;
+                    const forceY = (dy / distance) * force * this.density * settings.repulsionStrength;
+                    
+                    this.velocity.x -= forceX;
+                    this.velocity.y -= forceY;
+                }
+            }
+            
+            // Apply velocity with damping
+            this.velocity.x *= 0.92;
+            this.velocity.y *= 0.92;
+            
+            // Move particle
+            this.x += this.velocity.x;
+            this.y += this.velocity.y;
+            
+            // Return to base position with smooth easing
+            const returnForce = 0.02;
+            this.velocity.x += (this.baseX - this.x) * returnForce;
+            this.velocity.y += (this.baseY - this.y) * returnForce;
+            
+            // Boundary check with bounce
+            if (this.x < 0 || this.x > canvas.width) {
+                this.velocity.x *= -0.7;
+                this.x = Math.max(0, Math.min(canvas.width, this.x));
+            }
+            if (this.y < 0 || this.y > canvas.height) {
+                this.velocity.y *= -0.7;
+                this.y = Math.max(0, Math.min(canvas.height, this.y));
+            }
+        }
+    }
+    
+    // Initialize particles
+    function initParticles() {
+        for (let i = 0; i < settings.particleCount; i++) {
+            particles.push(new Particle());
+        }
+    }
+    
+    // Draw bold connections
+    function drawConnections() {
+        for (let i = 0; i < particles.length; i++) {
+            for (let j = i + 1; j < particles.length; j++) {
+                const p1 = particles[i];
+                const p2 = particles[j];
+                const dx = p1.x - p2.x;
+                const dy = p1.y - p2.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                
+                if (distance < settings.connectionDistance) {
+                    const opacity = 1 - (distance / settings.connectionDistance);
+                    
+                    // Bold connection line
+                    ctx.beginPath();
+                    ctx.moveTo(p1.x, p1.y);
+                    ctx.lineTo(p2.x, p2.y);
+                    ctx.strokeStyle = `hsla(265, 90%, 70%, ${opacity * 0.6})`;
+                    ctx.lineWidth = settings.lineWidth + (opacity * 2);
+                    ctx.stroke();
+                    
+                    // Connection glow
+                    ctx.beginPath();
+                    ctx.moveTo(p1.x, p1.y);
+                    ctx.lineTo(p2.x, p2.y);
+                    ctx.strokeStyle = `hsla(265, 100%, 80%, ${opacity * 0.3})`;
+                    ctx.lineWidth = settings.lineWidth + (opacity * 4);
+                    ctx.stroke();
+                }
+            }
+        }
+    }
+    
+    // Animation loop
+    function animate() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        // Semi-transparent background overlay
+        ctx.fillStyle = 'rgba(10, 5, 20, 0.2)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        
+        drawConnections();
+        
+        particles.forEach(particle => {
+            particle.update();
+            particle.draw();
+        });
+        
+        requestAnimationFrame(animate);
+    }
+    
+    // Mouse events
+    window.addEventListener('mousemove', (e) => {
+        mouse.x = e.x;
+        mouse.y = e.y;
+    });
+    
+    window.addEventListener('mouseout', () => {
+        mouse.x = null;
+        mouse.y = null;
+    });
+    
+    // Handle resize
+    window.addEventListener('resize', () => {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    });
+    
+    // Start animation
+    initParticles();
+    animate();
+}
+
+// Initialize when DOM is ready
+document.addEventListener('DOMContentLoaded', initBoldParticleBackground);
