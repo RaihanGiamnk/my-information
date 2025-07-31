@@ -580,4 +580,3 @@ function showLoadError(container) {
         </div>
     `;
 }
-
