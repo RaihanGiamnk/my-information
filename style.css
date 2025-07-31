@@ -884,3 +884,21 @@ nav a i {
     }
     }
         
+.work-meta {
+    display: flex;
+    justify-content: space-between;
+    color: var(--gray);
+    font-size: 0.9rem;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.work-meta span {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+}
+
+.work-meta i {
+    margin-right: 0;
+}
