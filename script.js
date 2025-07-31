@@ -213,30 +213,34 @@ function renderYouTubeVideos(videos, container) {
 }
 
 function createVideoCard(video) {
-    // Format numbers
     const formatStat = (stat) => {
         if (!stat) return '0';
         const num = parseInt(stat);
-        if (num >= 1000000) {
-            return (num / 1000000).toFixed(1) + 'M';
-        }
-        if (num >= 1000) {
-            return (num / 1000).toFixed(1) + 'K';
-        }
         return num.toLocaleString();
     };
 
     const viewCount = formatStat(video.statistics?.viewCount);
     const likeCount = formatStat(video.statistics?.likeCount);
+    const publishDate = new Date(video.snippet.publishedAt).toLocaleDateString('id-ID');
 
     return `
         <div class="work-card">
+            <!-- Bagian Thumbnail (tetap sama) -->
+            <div class="work-thumbnail">
+                <img src="${video.snippet.thumbnails.medium.url}" 
+                     alt="${video.snippet.title}"
+                     class="video-thumbnail"
+                     data-video-id="${video.id.videoId}">
+                <div class="play-button"><i class="fas fa-play"></i></div>
+            </div>
+            
+            <!-- Bagian Info Video -->
             <div class="work-info">
                 <h3>${video.snippet.title}</h3>
                 <div class="work-meta">
-                    <span><i class="fas fa-calendar-alt"></i> ${new Date(video.snippet.publishedAt).toLocaleDateString('id-ID')}</span>
-                    <span><i class="fas fa-thumbs-up"></i> ${likeCount}</span>
+                    <span><i class="fas fa-calendar-alt"></i> ${publishDate}</span>
                     <span><i class="fas fa-eye"></i> ${viewCount}</span>
+                    <span><i class="fas fa-thumbs-up"></i> ${likeCount}</span>
                 </div>
             </div>
         </div>

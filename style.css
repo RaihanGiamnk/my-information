@@ -906,8 +906,61 @@ nav a i {
     line-height: 1.4;
     display: -webkit-box;
     -webkit-line-clamp: 2;
+    line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
     text-overflow: ellipsis;
     min-height: 3em;
+}
+/* Pastikan struktur work-card tetap utuh */
+.work-card {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.work-thumbnail {
+    position: relative;
+    padding-bottom: 56.25%; /* 16:9 aspect ratio */
+    height: 0;
+    overflow: hidden;
+    flex-shrink: 0; /* Agar thumbnail tidak menyusut */
+}
+
+.work-info {
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+}
+
+.work-info h3 {
+    margin-bottom: 0.5rem;
+    font-size: 1rem;
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.work-meta {
+    display: flex;
+    gap: 1rem;
+    margin-top: auto; /* Push ke bawah */
+    font-size: 0.8rem;
+    color: var(--gray);
+    flex-wrap: wrap;
+}
+
+.work-meta span {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+}
+
+.work-meta i {
+    color: var(--secondary);
+    font-size: 0.7rem;
 }
