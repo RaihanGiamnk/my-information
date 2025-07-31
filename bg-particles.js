@@ -19,6 +19,8 @@ document.addEventListener('DOMContentLoaded', function() {
             this.size = Math.random() * 2 + 1;
             this.baseX = this.x;
             this.baseY = this.y;
+            this.speedX = (Math.random() - 0.5) * 0.5;
+            this.speedY = (Math.random() - 0.5) * 0.5;
             this.density = (Math.random() * 10) + 5;
             this.color = `hsla(${260 + Math.random() * 20}, 80%, 60%, ${Math.random() * 0.2 + 0.1})`;
         }
@@ -32,6 +34,16 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         update() {
+            // Boundary check with bounce
+            if (this.x < 0 || this.x > canvas.width) {
+                this.speedX *= -0.8;
+                this.x = this.x < 0 ? 0 : canvas.width;
+            }
+            if (this.y < 0 || this.y > canvas.height) {
+                this.speedY *= -0.8;
+                this.y = this.y < 0 ? 0 : canvas.height;
+            }
+            
             // Mouse interaction
             if (mouse.x && mouse.y) {
                 const dx = mouse.x - this.x;
@@ -46,7 +58,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     this.x -= directionX;
                     this.y -= directionY;
                 } else {
-                    // Return to original position
+                    // Return to original position with floating movement
                     if (Math.abs(this.x - this.baseX) > 0.1) {
                         this.x -= (this.x - this.baseX) / 10;
                     }
@@ -55,6 +67,13 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 }
             }
+            
+            // Apply random movement
+            this.x += this.speedX;
+            this.y += this.speedY;
+            
+            // Add slight floating effect
+            this.y += Math.sin(Date.now() * 0.001 + this.x * 0.01) * 0.3;
             
             this.draw();
         }
@@ -70,6 +89,10 @@ document.addEventListener('DOMContentLoaded', function() {
     // Animation loop
     function animate() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        // Semi-transparent background to create motion blur effect
+        ctx.fillStyle = 'rgba(10, 5, 20, 0.2)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
         
         // Draw connections
         drawConnections();
