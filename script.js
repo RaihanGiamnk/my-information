@@ -315,7 +315,7 @@ function resetFormButton(submitText, loadingSpinner, submitBtn) {
 }
 
 /**
- * Molecule Background
+ * Molecule Background - Enhanced Version
  */
 function initMoleculeBackground() {
     const canvas = document.getElementById('molecules');
@@ -324,23 +324,110 @@ function initMoleculeBackground() {
     const ctx = canvas.getContext('2d');
     
     // Set canvas size
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
+    function resizeCanvas() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    }
+    resizeCanvas();
     
     // Configuration
     const config = {
-        particleCount: 50,
-        particleMaxSize: 3,
+        particleCount: 80,
+        particleMaxSize: 4,
         lineMaxDistance: 150,
-        particleSpeed: 0.5,
+        particleSpeed: 0.7,
         hue: 260, // Purple hue to match your theme
-        repulsionDistance: 100
+        repulsionDistance: 120,
+        attractionDistance: 200,
+        avatarInteraction: true
     };
+    
+    // Particle class
+    class Particle {
+        constructor() {
+            this.reset(canvas.width, canvas.height);
+            this.baseX = this.x;
+            this.baseY = this.y;
+            this.size = Math.random() * config.particleMaxSize + 1;
+            this.density = (Math.random() * 30) + 1;
+            this.hueVariation = Math.random() * 30 - 15;
+        }
+        
+        reset(width, height) {
+            this.x = Math.random() * width;
+            this.y = Math.random() * height;
+            this.speedX = (Math.random() - 0.5) * config.particleSpeed;
+            this.speedY = (Math.random() - 0.5) * config.particleSpeed;
+        }
+        
+        update(mouse, avatar) {
+            // Boundary check with bounce
+            if (this.x < 0 || this.x > canvas.width) {
+                this.speedX *= -0.8;
+                this.x = this.x < 0 ? 0 : canvas.width;
+            }
+            if (this.y < 0 || this.y > canvas.height) {
+                this.speedY *= -0.8;
+                this.y = this.y < 0 ? 0 : canvas.height;
+            }
+            
+            // Mouse interaction - repulsion
+            if (mouse.x && mouse.y) {
+                const dx = mouse.x - this.x;
+                const dy = mouse.y - this.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                
+                if (distance < config.repulsionDistance) {
+                    const forceDirectionX = dx / distance;
+                    const forceDirectionY = dy / distance;
+                    const force = (config.repulsionDistance - distance) / config.repulsionDistance;
+                    
+                    this.x -= forceDirectionX * force * this.density * 0.5;
+                    this.y -= forceDirectionY * force * this.density * 0.5;
+                }
+            }
+            
+            // Avatar interaction - attraction
+            if (config.avatarInteraction && avatar) {
+                const avatarRect = avatar.getBoundingClientRect();
+                const avatarCenter = {
+                    x: avatarRect.left + avatarRect.width/2,
+                    y: avatarRect.top + avatarRect.height/2
+                };
+                const dxAvatar = this.x - avatarCenter.x;
+                const dyAvatar = this.y - avatarCenter.y;
+                const distanceAvatar = Math.sqrt(dxAvatar * dxAvatar + dyAvatar * dyAvatar);
+                
+                if (distanceAvatar < config.attractionDistance) {
+                    const forceDirectionX = dxAvatar / distanceAvatar;
+                    const forceDirectionY = dyAvatar / distanceAvatar;
+                    const force = (config.attractionDistance - distanceAvatar) / config.attractionDistance;
+                    
+                    this.x -= forceDirectionX * force * 0.3;
+                    this.y -= forceDirectionY * force * 0.3;
+                }
+            }
+            
+            // Normal movement with slight floating effect
+            this.x += this.speedX;
+            this.y += this.speedY + Math.sin(Date.now() * 0.001 + this.x * 0.01) * 0.3;
+        }
+        
+        draw(ctx) {
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+            ctx.fillStyle = `hsla(${config.hue + this.hueVariation}, 80%, 60%, ${0.3 + Math.random() * 0.3})`;
+            ctx.shadowBlur = 10;
+            ctx.shadowColor = `hsla(${config.hue}, 80%, 60%, 0.5)`;
+            ctx.fill();
+            ctx.shadowBlur = 0;
+        }
+    }
     
     // Initialize particles
     const particles = [];
     for (let i = 0; i < config.particleCount; i++) {
-        particles.push(new Particle(canvas.width, canvas.height, config));
+        particles.push(new Particle());
     }
     
     // Mouse position tracking
@@ -357,15 +444,16 @@ function initMoleculeBackground() {
     
     // Handle resize
     window.addEventListener('resize', () => {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
+        resizeCanvas();
+        particles.forEach(particle => particle.reset(canvas.width, canvas.height));
     });
     
-    // Start animation
-    animateParticles();
-    
-    function animateParticles() {
+    // Animation loop
+    function animate() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        // Draw connections first (behind particles)
+        drawParticleConnections(particles, ctx, config);
         
         // Update and draw particles
         const avatar = document.querySelector('.hero-avatar');
@@ -374,75 +462,19 @@ function initMoleculeBackground() {
             particle.draw(ctx);
         });
         
-        // Draw connections between particles
-        drawParticleConnections(particles, ctx, config);
-        
-        requestAnimationFrame(animateParticles);
-    }
-}
-
-class Particle {
-    constructor(canvasWidth, canvasHeight, config) {
-        this.x = Math.random() * canvasWidth;
-        this.y = Math.random() * canvasHeight;
-        this.size = Math.random() * config.particleMaxSize + 1;
-        this.speedX = (Math.random() - 0.5) * config.particleSpeed;
-        this.speedY = (Math.random() - 0.5) * config.particleSpeed;
-        this.hue = config.hue;
+        requestAnimationFrame(animate);
     }
     
-    update(mouse, avatar) {
-        // Avatar interaction
-        if (avatar) {
-            const avatarRect = avatar.getBoundingClientRect();
-            const avatarCenter = {
-                x: avatarRect.left + avatarRect.width/2,
-                y: avatarRect.top + avatarRect.height/2
-            };
-            const dxAvatar = this.x - avatarCenter.x;
-            const dyAvatar = this.y - avatarCenter.y;
-            const distanceAvatar = Math.sqrt(dxAvatar * dxAvatar + dyAvatar * dyAvatar);
-            
-            if (distanceAvatar < 200) {
-                const force = (200 - distanceAvatar) / 200;
-                this.x += dxAvatar * 0.01 * force;
-                this.y += dyAvatar * 0.01 * force;
-            }
-        }
-        
-        // Mouse interaction
-        if (mouse.x && mouse.y) {
-            const dx = mouse.x - this.x;
-            const dy = mouse.y - this.y;
-            const distance = Math.sqrt(dx * dx + dy * dy);
-            
-            if (distance < config.repulsionDistance) {
-                const angle = Math.atan2(dy, dx);
-                const force = (config.repulsionDistance - distance) / config.repulsionDistance;
-                this.x -= Math.cos(angle) * force * 5;
-                this.y -= Math.sin(angle) * force * 5;
-                return; // Skip normal movement when repulsed
-            }
-        }
-        
-        // Boundary check
-        if (this.x < 0 || this.x > canvas.width) this.speedX *= -1;
-        if (this.y < 0 || this.y > canvas.height) this.speedY *= -1;
-        
-        // Normal movement
-        this.x += this.speedX;
-        this.y += this.speedY;
-    }
-    
-    draw(ctx) {
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-        ctx.fillStyle = `hsla(${this.hue}, 80%, 60%, 0.8)`;
-        ctx.fill();
-    }
+    // Start animation
+    animate();
 }
 
 function drawParticleConnections(particles, ctx, config) {
+    // Create a gradient for connection lines
+    const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+    gradient.addColorStop(0, `hsla(${config.hue}, 80%, 60%, 0.1)`);
+    gradient.addColorStop(1, `hsla(${config.hue + 30}, 80%, 60%, 0.1)`);
+    
     for (let i = 0; i < particles.length; i++) {
         for (let j = i + 1; j < particles.length; j++) {
             const dx = particles[i].x - particles[j].x;
@@ -452,8 +484,8 @@ function drawParticleConnections(particles, ctx, config) {
             if (distance < config.lineMaxDistance) {
                 const opacity = 1 - (distance / config.lineMaxDistance);
                 ctx.beginPath();
-                ctx.strokeStyle = `hsla(${config.hue}, 80%, 60%, ${opacity * 0.3})`;
-                ctx.lineWidth = 0.5;
+                ctx.strokeStyle = gradient;
+                ctx.lineWidth = 0.5 * opacity;
                 ctx.moveTo(particles[i].x, particles[i].y);
                 ctx.lineTo(particles[j].x, particles[j].y);
                 ctx.stroke();
