@@ -1618,3 +1618,40 @@ body:hover .hero-avatar {
     color: var(--light);
     text-align: center;
 }
+.achievement-toast {
+    position: fixed;
+    top: 30px;
+    right: -400px;
+    background: var(--gradient);
+    color: white;
+    padding: 1rem;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    z-index: 1000;
+    transition: right 0.5s ease;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+}
+
+.achievement-toast.show {
+    right: 30px;
+}
+
+.achievement-icon {
+    font-size: 2rem;
+    color: gold;
+}
+
+.achievement-content h4 {
+    margin-bottom: 0.3rem;
+}
+.video-link {
+    color: inherit;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.video-link:hover {
+    color: var(--secondary);
+}

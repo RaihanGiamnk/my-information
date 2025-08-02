@@ -1,230 +1,3 @@
-// Admin System - Optimized Version
-function initAdminSystem() {
-    // DOM Elements
-    const loginModal = document.getElementById('loginModal');
-    const uploadModal = document.getElementById('uploadModal');
-    const adminControls = document.getElementById('adminControls');
-    const loginForm = document.getElementById('adminLoginForm');
-    const uploadForm = document.getElementById('photoUploadForm');
-    const logoutBtn = document.getElementById('logoutBtn');
-    const addPhotoBtn = document.getElementById('addPhotoBtn');
-    const galleryContainer = document.getElementById('galleryContainer');
-
-    // Admin credentials (in production, use server-side authentication)
-    const ADMIN_CREDENTIALS = {
-        username: "admin",
-        password: "raihangimank123" // Change this in production
-    };
-
-    // Initialize modals as hidden
-    if (loginModal) loginModal.style.display = 'none';
-    if (uploadModal) uploadModal.style.display = 'none';
-    if (adminControls) adminControls.style.display = 'none';
-
-    // Check login status
-    const isLoggedIn = localStorage.getItem('adminLoggedIn') === 'true';
-
-    // Initialize the system
-    function init() {
-        if (isLoggedIn) {
-            showAdminControls();
-            loadGallery();
-        }
-        addLoginButton();
-        setupEventListeners();
-    }
-
-    // Add login button to header
-    function addLoginButton() {
-        const nav = document.querySelector('nav ul');
-        if (nav && !document.getElementById('adminLoginBtn')) {
-            const loginBtn = document.createElement('li');
-            loginBtn.id = 'adminLoginBtn';
-            loginBtn.innerHTML = `
-                <a href="#" class="nav-link" id="showLoginModal">
-                    <i class="fas fa-lock"></i> Admin
-                </a>
-            `;
-            nav.appendChild(loginBtn);
-        }
-    }
-
-    // Setup event listeners using event delegation
-    function setupEventListeners() {
-        document.addEventListener('click', (e) => {
-            // Show login modal
-            if (e.target.id === 'showLoginModal' || e.target.closest('#showLoginModal')) {
-                e.preventDefault();
-                loginModal.style.display = 'block';
-            }
-
-            // Close modals
-            if (e.target.classList.contains('close-modal')) {
-                loginModal.style.display = 'none';
-                uploadModal.style.display = 'none';
-            }
-
-            // Click outside modal to close
-            if (e.target === loginModal) loginModal.style.display = 'none';
-            if (e.target === uploadModal) uploadModal.style.display = 'none';
-        });
-
-        // Login form
-        if (loginForm) {
-            loginForm.addEventListener('submit', handleLogin);
-        }
-
-        // Logout button
-        if (logoutBtn) {
-            logoutBtn.addEventListener('click', handleLogout);
-        }
-
-        // Add photo button
-        if (addPhotoBtn) {
-            addPhotoBtn.addEventListener('click', () => {
-                uploadModal.style.display = 'block';
-            });
-        }
-
-        // Upload form
-        if (uploadForm) {
-            uploadForm.addEventListener('submit', handlePhotoUpload);
-        }
-    }
-
-    // Handle login
-    function handleLogin(e) {
-        e.preventDefault();
-        const username = document.getElementById('username').value;
-        const password = document.getElementById('password').value;
-
-        if (username === ADMIN_CREDENTIALS.username && password === ADMIN_CREDENTIALS.password) {
-            localStorage.setItem('adminLoggedIn', 'true');
-            loginModal.style.display = 'none';
-            showAdminControls();
-            loadGallery();
-            showToast('Login successful!', 'success');
-        } else {
-            showToast('Invalid credentials', 'error');
-        }
-    }
-
-    // Handle logout
-    function handleLogout() {
-        localStorage.removeItem('adminLoggedIn');
-        if (adminControls) adminControls.style.display = 'none';
-        document.getElementById('adminLoginBtn')?.remove();
-        addLoginButton();
-        loadGallery();
-        showToast('Logged out successfully', 'success');
-    }
-
-    // Show admin controls
-    function showAdminControls() {
-        if (adminControls) {
-            adminControls.style.display = 'flex';
-            const adminLoginBtn = document.getElementById('adminLoginBtn');
-            if (adminLoginBtn) adminLoginBtn.style.display = 'none';
-        }
-    }
-
-    // Load gallery from localStorage
-    function loadGallery() {
-    const gallery = JSON.parse(localStorage.getItem('gallery')) || [];
-    
-    if (!galleryContainer) return;
-
-    if (gallery.length === 0) {
-        galleryContainer.innerHTML = `
-            <div class="gallery-placeholder">
-                <i class="fas fa-image"></i>
-                <p>No photos yet. ${isLoggedIn ? 'Click "Add Photo" to upload.' : 'Check back later.'}</p>
-            </div>
-        `;
-    } else {
-        galleryContainer.innerHTML = gallery.map((item, index) => `
-            <div class="gallery-item">
-                <img src="${item.image}" alt="${item.title}" class="gallery-img">
-                <h3>${item.title}</h3>
-                ${isLoggedIn ? `<button class="delete-btn" data-index="${index}"><i class="fas fa-trash"></i></button>` : ''}
-            </div>
-        `).join('');
-
-        // Add delete event listeners if logged in
-        if (isLoggedIn) {
-            document.querySelectorAll('.delete-btn').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    deletePhoto(parseInt(btn.dataset.index));
-                });
-            });
-        }
-    }
-}
-
-    // Handle photo upload
-    function handlePhotoUpload(e) {
-        e.preventDefault();
-        const title = document.getElementById('photoTitle').value;
-        const fileInput = document.getElementById('photoFile');
-        
-        if (!fileInput.files[0]) {
-            showToast('Please select an image file', 'error');
-            return;
-        }
-
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            const imageData = e.target.result;
-            savePhoto(title, imageData);
-        };
-        reader.readAsDataURL(fileInput.files[0]);
-    }
-
-    function savePhoto(title, imageData) {
-    const gallery = JSON.parse(localStorage.getItem('gallery')) || [];
-    gallery.push({ title, image: imageData });
-    localStorage.setItem('gallery', JSON.stringify(gallery));
-    
-    console.log('Photo saved:', { title, image: imageData.substring(0, 30) + '...' }); // Log sebagian data gambar
-    
-    if (uploadModal) uploadModal.style.display = 'none';
-    if (uploadForm) uploadForm.reset();
-    loadGallery();
-    showToast('Photo uploaded successfully!', 'success');
-}
-    // Delete photo
-    function deletePhoto(index) {
-        const gallery = JSON.parse(localStorage.getItem('gallery')) || [];
-        gallery.splice(index, 1);
-        localStorage.setItem('gallery', JSON.stringify(gallery));
-        loadGallery();
-        showToast('Photo deleted', 'success');
-    }
-
-    // Show toast notification
-    function showToast(message, type) {
-        const toast = document.createElement('div');
-        toast.className = `toast ${type}`;
-        toast.textContent = message;
-        document.body.appendChild(toast);
-        
-        setTimeout(() => {
-            toast.classList.add('show');
-        }, 10);
-        
-        setTimeout(() => {
-            toast.classList.remove('show');
-            setTimeout(() => {
-                toast.remove();
-            }, 300);
-        }, 3000);
-    }
-
-    // Initialize the admin system
-    init();
-}
-
 // Initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
     // Initialize admin system first for better performance
@@ -453,7 +226,6 @@ function createVideoCard(video) {
 
     return `
         <div class="work-card">
-            <!-- Bagian Thumbnail (tetap sama) -->
             <div class="work-thumbnail">
                 <img src="${video.snippet.thumbnails.medium.url}" 
                      alt="${video.snippet.title}"
@@ -462,9 +234,14 @@ function createVideoCard(video) {
                 <div class="play-button"><i class="fas fa-play"></i></div>
             </div>
             
-            <!-- Bagian Info Video -->
             <div class="work-info">
-                <h3>${video.snippet.title}</h3>
+                <h3>
+                    <a href="https://www.youtube.com/watch?v=${video.id.videoId}" 
+                       target="_blank" 
+                       class="video-link">
+                       ${video.snippet.title}
+                    </a>
+                </h3>
                 <div class="work-meta">
                     <span><i class="fas fa-calendar-alt"></i> ${publishDate}</span>
                     <span><i class="fas fa-eye"></i> ${viewCount}</span>
@@ -481,15 +258,11 @@ function formatNumber(num) {
 
 function setupVideoThumbnailClickHandlers() {
     document.querySelectorAll('.video-thumbnail').forEach(thumb => {
-        thumb.addEventListener('click', function() {
+        thumb.addEventListener('click', function(e) {
+            e.preventDefault();
             const videoId = this.getAttribute('data-video-id');
-            this.parentElement.innerHTML = `
-                <iframe src="https://www.youtube.com/embed/${videoId}?autoplay=1" 
-                    frameborder="0" 
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                    allowfullscreen>
-                </iframe>
-            `;
+            // Buka tab baru ke video YouTube
+            window.open(`https://www.youtube.com/watch?v=${videoId}`, '_blank');
         });
     });
 }
@@ -1390,3 +1163,98 @@ document.addEventListener('DOMContentLoaded', () => {
   // ... existing code ...
   initAdminSystem();
 });
+function initAchievements() {
+    const achievements = {
+        firstVisit: {
+            title: 'First Visit',
+            message: 'Welcome to my website! Thanks for visiting.',
+            earned: false
+        },
+        watchedVideo: {
+            title: 'Video Watcher',
+            message: 'You watched a video! Awesome!',
+            earned: false
+        },
+        sentMessage: {
+            title: 'Social Butterfly',
+            message: 'You sent a message in the chat!',
+            earned: false
+        },
+        exploredAll: {
+            title: 'Explorer',
+            message: 'You visited all sections of the website!',
+            earned: false
+        }
+    };
+    
+    // Check for first visit
+    if (!localStorage.getItem('visited')) {
+        unlockAchievement('firstVisit');
+        localStorage.setItem('visited', 'true');
+    }
+    
+    // Track section visits
+    const sections = ['home', 'videos', 'gallery', 'about', 'contact'];
+    const visitedSections = new Set();
+    
+    function trackSectionVisit(sectionId) {
+        visitedSections.add(sectionId);
+        if (visitedSections.size === sections.length && !achievements.exploredAll.earned) {
+            unlockAchievement('exploredAll');
+        }
+    }
+    
+    // Unlock achievement
+    function unlockAchievement(achievementId) {
+        const achievement = achievements[achievementId];
+        if (!achievement || achievement.earned) return;
+        
+        achievement.earned = true;
+        showAchievementToast(achievement.message);
+    }
+    
+    // Show achievement toast
+    function showAchievementToast(message) {
+        const toast = document.getElementById('achievementToast');
+        const messageElement = document.getElementById('achievementMessage');
+        
+        messageElement.textContent = message;
+        toast.classList.add('show');
+        
+        setTimeout(() => {
+            toast.classList.remove('show');
+        }, 5000);
+    }
+    
+    // Track video watching
+    document.addEventListener('click', (e) => {
+        if (e.target.closest('.video-thumbnail') && !achievements.watchedVideo.earned) {
+            unlockAchievement('watchedVideo');
+        }
+    });
+    
+    // Track chat messages
+    document.addEventListener('chatMessage', () => {
+        if (!achievements.sentMessage.earned) {
+            unlockAchievement('sentMessage');
+        }
+    });
+    
+    // Track section visits
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const sectionId = entry.target.id;
+                trackSectionVisit(sectionId);
+            }
+        });
+    }, { threshold: 0.5 });
+    
+    sections.forEach(sectionId => {
+        const section = document.getElementById(sectionId);
+        if (section) observer.observe(section);
+    });
+}
+
+// Tambahkan ke DOMContentLoaded
+document.addEventListener('DOMContentLoaded', initAchievements);
