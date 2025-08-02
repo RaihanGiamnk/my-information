@@ -817,3 +817,125 @@ function initBoldParticleBackground() {
 
 // Initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', initBoldParticleBackground);
+function initDynamicBackground() {
+    const bg = document.getElementById('interactive-bg');
+    const sections = document.querySelectorAll('section');
+    
+    window.addEventListener('scroll', () => {
+        const scrollPosition = window.scrollY;
+        const docHeight = document.body.scrollHeight - window.innerHeight;
+        const scrollPercent = scrollPosition / docHeight;
+        
+        // Change hue based on scroll position
+        const hue = 260 + (scrollPercent * 40);
+        bg.style.background = `linear-gradient(135deg, hsl(${hue}, 70%, 10%) 0%, hsl(${hue + 20}, 70%, 15%) 100%)`;
+        
+        // Pulse effect when reaching sections
+        sections.forEach(section => {
+            const rect = section.getBoundingClientRect();
+            if (rect.top < window.innerHeight/2 && rect.bottom > window.innerHeight/2) {
+                section.style.animation = 'sectionPulse 1s ease';
+                setTimeout(() => section.style.animation = '', 1000);
+            }
+        });
+    });
+}
+function initCustomCursor() {
+    const cursor = document.createElement('div');
+    cursor.className = 'custom-cursor';
+    document.body.appendChild(cursor);
+    
+    document.addEventListener('mousemove', (e) => {
+        cursor.style.left = `${e.clientX}px`;
+        cursor.style.top = `${e.clientY}px`;
+    });
+    
+    document.querySelectorAll('a, button, .video-thumbnail').forEach(el => {
+        el.addEventListener('mouseenter', () => {
+            cursor.classList.add('cursor-hover');
+        });
+        el.addEventListener('mouseleave', () => {
+            cursor.classList.remove('cursor-hover');
+        });
+    });
+}
+function initAudioVisualizer() {
+    const canvas = document.createElement('canvas');
+    canvas.id = 'audio-visualizer';
+    document.body.appendChild(canvas);
+    
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    canvas.style.position = 'fixed';
+    canvas.style.top = '0';
+    canvas.style.left = '0';
+    canvas.style.zIndex = '-1';
+    canvas.style.opacity = '0.3';
+    canvas.style.pointerEvents = 'none';
+    
+    let audioContext, analyser, dataArray;
+    
+    document.addEventListener('click', initAudio, { once: true });
+    
+    function initAudio() {
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        analyser = audioContext.createAnalyser();
+        analyser.fftSize = 256;
+        
+        const bufferLength = analyser.frequencyBinCount;
+        dataArray = new Uint8Array(bufferLength);
+        
+        navigator.mediaDevices.getUserMedia({ audio: true })
+            .then(stream => {
+                const source = audioContext.createMediaStreamSource(stream);
+                source.connect(analyser);
+                visualize();
+            })
+            .catch(err => {
+                console.log('Audio not available:', err);
+                // Fallback to simulated visualization
+                simulateVisualization();
+            });
+    }
+    
+    function visualize() {
+        requestAnimationFrame(visualize);
+        analyser.getByteFrequencyData(dataArray);
+        
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        const barWidth = (canvas.width / dataArray.length) * 2.5;
+        let x = 0;
+        
+        for (let i = 0; i < dataArray.length; i++) {
+            const barHeight = dataArray[i] * 1.5;
+            const hue = 260 + (i * 2);
+            
+            ctx.fillStyle = `hsla(${hue}, 80%, 60%, 0.7)`;
+            ctx.fillRect(x, canvas.height - barHeight, barWidth, barHeight);
+            
+            x += barWidth + 1;
+        }
+    }
+    
+    function simulateVisualization() {
+        requestAnimationFrame(simulateVisualization);
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        const barCount = 100;
+        const barWidth = canvas.width / barCount;
+        let x = 0;
+        
+        for (let i = 0; i < barCount; i++) {
+            const randomHeight = Math.random() * canvas.height * 0.3;
+            const hue = 260 + (i * 1.5);
+            const barHeight = randomHeight + Math.sin(Date.now() * 0.001 + i * 0.1) * 50;
+            
+            ctx.fillStyle = `hsla(${hue}, 80%, 60%, 0.5)`;
+            ctx.fillRect(x, canvas.height - barHeight, barWidth, barHeight);
+            
+            x += barWidth;
+        }
+    }
+}

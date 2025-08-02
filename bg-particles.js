@@ -1,4 +1,10 @@
+// Replace the entire file with this enhanced version
 document.addEventListener('DOMContentLoaded', function() {
+    // Wait for splash screen to finish
+    setTimeout(initParticleBackground, 2500);
+});
+
+function initParticleBackground() {
     const canvas = document.getElementById('interactive-bg');
     if (!canvas) return;
     
@@ -6,141 +12,195 @@ document.addEventListener('DOMContentLoaded', function() {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
     
-    // Particle settings
-    const particles = [];
-    const particleCount = Math.min(Math.floor(window.innerWidth * window.innerHeight / 5000), 150);
-    const mouse = { x: null, y: null, radius: 100 };
+    // Enhanced particle settings
+    const settings = {
+    particleCount: Math.min(Math.floor(window.innerWidth * window.innerHeight / 2500), 200),
+    baseRadius: 2.5,
+    maxRadius: 6,
+    lineWidth: 1.2,
+    mouseRadius: 180,
+    repulsionStrength: 0.85,
+    connectionDistance: 150,
+    colors: [
+        'hsla(260, 95%, 75%, 0.85)',
+        'hsla(270, 95%, 75%, 0.85)',
+        'hsla(280, 95%, 75%, 0.85)',
+        'hsla(250, 95%, 75%, 0.85)'
+    ],
+    floatIntensity: 0.35,
+    floatSpeed: 0.0015,
+    glowIntensity: 0.8,
+    connectionHue: 270
+};
     
-    // Particle class
+    const particles = [];
+    const mouse = { x: null, y: null };
+    let globalAngle = 0;
+    
+    // Enhanced Particle Class
     class Particle {
         constructor() {
+            this.reset();
+            this.color = settings.colors[Math.floor(Math.random() * settings.colors.length)];
+            this.targetRadius = Math.random() * (settings.maxRadius - settings.baseRadius) + settings.baseRadius;
+            this.currentRadius = 0;
+            this.growthRate = Math.random() * 0.1 + 0.05;
+            this.floatOffset = Math.random() * Math.PI * 2;
+            this.floatAmplitude = Math.random() * 20 + 10;
+        }
+        
+        reset() {
             this.x = Math.random() * canvas.width;
             this.y = Math.random() * canvas.height;
-            this.size = Math.random() * 2 + 1;
             this.baseX = this.x;
             this.baseY = this.y;
-            this.speedX = (Math.random() - 0.5) * 0.5;
-            this.speedY = (Math.random() - 0.5) * 0.5;
-            this.density = (Math.random() * 10) + 5;
-            this.color = `hsla(${260 + Math.random() * 20}, 80%, 60%, ${Math.random() * 0.2 + 0.1})`;
+            this.density = (Math.random() * 30) + 10;
+            this.velocity = {
+                x: (Math.random() - 0.5) * 0.5,
+                y: (Math.random() - 0.5) * 0.5
+            };
         }
         
         draw() {
+            // Grow particle to target size
+            if (this.currentRadius < this.targetRadius) {
+                this.currentRadius += this.growthRate;
+            }
+            
+            // Main particle with glow
             ctx.beginPath();
-            ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+            ctx.arc(this.x, this.y, this.currentRadius, 0, Math.PI * 2);
             ctx.fillStyle = this.color;
-            ctx.closePath();
+            ctx.shadowBlur = this.currentRadius * 3;
+            ctx.shadowColor = this.color;
             ctx.fill();
+            ctx.shadowBlur = 0;
         }
         
         update() {
-            // Boundary check with bounce
-            if (this.x < 0 || this.x > canvas.width) {
-                this.speedX *= -0.8;
-                this.x = this.x < 0 ? 0 : canvas.width;
-            }
-            if (this.y < 0 || this.y > canvas.height) {
-                this.speedY *= -0.8;
-                this.y = this.y < 0 ? 0 : canvas.height;
-            }
-            
             // Mouse interaction
             if (mouse.x && mouse.y) {
                 const dx = mouse.x - this.x;
                 const dy = mouse.y - this.y;
                 const distance = Math.sqrt(dx * dx + dy * dy);
                 
-                if (distance < mouse.radius) {
-                    const force = (mouse.radius - distance) / mouse.radius;
-                    const directionX = dx / distance * force * this.density;
-                    const directionY = dy / distance * force * this.density;
+                if (distance < settings.mouseRadius) {
+                    const force = (settings.mouseRadius - distance) / settings.mouseRadius;
+                    const directionX = dx / distance;
+                    const directionY = dy / distance;
                     
-                    this.x -= directionX;
-                    this.y -= directionY;
-                } else {
-                    // Return to original position with floating movement
-                    if (Math.abs(this.x - this.baseX) > 0.1) {
-                        this.x -= (this.x - this.baseX) / 10;
-                    }
-                    if (Math.abs(this.y - this.baseY) > 0.1) {
-                        this.y -= (this.y - this.baseY) / 10;
-                    }
+                    this.velocity.x -= directionX * force * this.density * settings.repulsionStrength;
+                    this.velocity.y -= directionY * force * this.density * settings.repulsionStrength;
                 }
             }
             
-            // Apply random movement
-            this.x += this.speedX;
-            this.y += this.speedY;
+            // Floating animation
+            const floatX = Math.cos(globalAngle + this.floatOffset) * this.floatAmplitude * settings.floatIntensity;
+            const floatY = Math.sin(globalAngle + this.floatOffset) * this.floatAmplitude * settings.floatIntensity;
             
-            // Add slight floating effect
-            this.y += Math.sin(Date.now() * 0.001 + this.x * 0.01) * 0.3;
+            // Apply velocity with damping
+            this.velocity.x *= 0.92;
+            this.velocity.y *= 0.92;
             
-            this.draw();
+            // Move particle
+            this.x += this.velocity.x + floatX;
+            this.y += this.velocity.y + floatY;
+            
+            // Return to base position with smooth easing
+            const returnForce = 0.02;
+            this.velocity.x += (this.baseX - this.x) * returnForce;
+            this.velocity.y += (this.baseY - this.y) * returnForce;
+            
+            // Boundary check with bounce
+            if (this.x < 0 || this.x > canvas.width) {
+                this.velocity.x *= -0.7;
+                this.x = Math.max(0, Math.min(canvas.width, this.x));
+            }
+            if (this.y < 0 || this.y > canvas.height) {
+                this.velocity.y *= -0.7;
+                this.y = Math.max(0, Math.min(canvas.height, this.y));
+            }
         }
     }
     
-    // Create particles
-    function init() {
-        for (let i = 0; i < particleCount; i++) {
-            particles.push(new Particle());
+    // Initialize particles with entrance animation
+    function initParticles() {
+        for (let i = 0; i < settings.particleCount; i++) {
+            const p = new Particle();
+            // Start particles off-screen for entrance effect
+            p.x = Math.random() > 0.5 ? -100 : canvas.width + 100;
+            p.y = Math.random() * canvas.height;
+            particles.push(p);
         }
     }
     
-    // Animation loop
-    function animate() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        
-        // Semi-transparent background to create motion blur effect
-        ctx.fillStyle = 'rgba(10, 5, 20, 0.2)';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        
-        // Draw connections
-        drawConnections();
-        
-        // Update particles
-        particles.forEach(particle => particle.update());
-        
-        requestAnimationFrame(animate);
-    }
-    
-    // Draw lines between particles
+    // Draw connections with gradient
     function drawConnections() {
-        for (let a = 0; a < particles.length; a++) {
-            for (let b = a; b < particles.length; b++) {
-                const dx = particles[a].x - particles[b].x;
-                const dy = particles[a].y - particles[b].y;
+        for (let i = 0; i < particles.length; i++) {
+            for (let j = i + 1; j < particles.length; j++) {
+                const p1 = particles[i];
+                const p2 = particles[j];
+                const dx = p1.x - p2.x;
+                const dy = p1.y - p2.y;
                 const distance = Math.sqrt(dx * dx + dy * dy);
                 
-                if (distance < 100) {
-                    ctx.strokeStyle = `hsla(260, 80%, 60%, ${0.3 - distance/300})`;
-                    ctx.lineWidth = 0.5;
+                if (distance < settings.connectionDistance) {
+                    const opacity = 1 - (distance / settings.connectionDistance);
                     ctx.beginPath();
-                    ctx.moveTo(particles[a].x, particles[a].y);
-                    ctx.lineTo(particles[b].x, particles[b].y);
+                    ctx.moveTo(p1.x, p1.y);
+                    ctx.lineTo(p2.x, p2.y);
+                    ctx.strokeStyle = `hsla(265, 90%, 70%, ${opacity * 0.6})`;
+                    ctx.lineWidth = settings.lineWidth + (opacity * 1.5);
                     ctx.stroke();
                 }
             }
         }
     }
     
+    // Animation loop
+    function animate() {
+        globalAngle += settings.floatSpeed;
+        
+        // Clear with semi-transparent for motion blur
+        ctx.fillStyle = 'rgba(10, 5, 20, 0.2)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        
+        drawConnections();
+        
+        particles.forEach(particle => {
+            particle.update();
+            particle.draw();
+        });
+        
+        requestAnimationFrame(animate);
+    }
+    
     // Mouse events
-    window.addEventListener('mousemove', function(e) {
+    window.addEventListener('mousemove', (e) => {
         mouse.x = e.x;
         mouse.y = e.y;
     });
     
-    window.addEventListener('mouseout', function() {
-        mouse.x = undefined;
-        mouse.y = undefined;
+    window.addEventListener('mouseout', () => {
+        mouse.x = null;
+        mouse.y = null;
     });
     
     // Handle resize
-    window.addEventListener('resize', function() {
+    window.addEventListener('resize', () => {
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
     });
     
     // Start animation
-    init();
+    initParticles();
     animate();
-});
+    
+    // Animate particles entering the screen
+    setTimeout(() => {
+        particles.forEach(p => {
+            p.baseX = Math.random() * canvas.width;
+            p.baseY = Math.random() * canvas.height;
+        });
+    }, 100);
+}
