@@ -130,48 +130,37 @@ function initAdminSystem() {
 
     // Load gallery from localStorage
     function loadGallery() {
-        // Use idle callback for better performance
-        if ('requestIdleCallback' in window) {
-            requestIdleCallback(() => {
-                _loadGallery();
+    const gallery = JSON.parse(localStorage.getItem('gallery')) || [];
+    
+    if (!galleryContainer) return;
+
+    if (gallery.length === 0) {
+        galleryContainer.innerHTML = `
+            <div class="gallery-placeholder">
+                <i class="fas fa-image"></i>
+                <p>No photos yet. ${isLoggedIn ? 'Click "Add Photo" to upload.' : 'Check back later.'}</p>
+            </div>
+        `;
+    } else {
+        galleryContainer.innerHTML = gallery.map((item, index) => `
+            <div class="gallery-item">
+                <img src="${item.image}" alt="${item.title}" class="gallery-img">
+                <h3>${item.title}</h3>
+                ${isLoggedIn ? `<button class="delete-btn" data-index="${index}"><i class="fas fa-trash"></i></button>` : ''}
+            </div>
+        `).join('');
+
+        // Add delete event listeners if logged in
+        if (isLoggedIn) {
+            document.querySelectorAll('.delete-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    deletePhoto(parseInt(btn.dataset.index));
+                });
             });
-        } else {
-            setTimeout(_loadGallery, 0);
-        }
-
-        function _loadGallery() {
-            const gallery = JSON.parse(localStorage.getItem('gallery')) || [];
-            
-            if (!galleryContainer) return;
-
-            if (gallery.length === 0) {
-                galleryContainer.innerHTML = `
-                    <div class="gallery-placeholder">
-                        <i class="fas fa-image"></i>
-                        <p>No photos yet. ${isLoggedIn ? 'Click "Add Photo" to upload.' : 'Check back later.'}</p>
-                    </div>
-                `;
-            } else {
-                galleryContainer.innerHTML = gallery.map((item, index) => `
-                    <div class="gallery-item">
-                        <img src="${item.image}" alt="${item.title}" class="gallery-img">
-                        <h3>${item.title}</h3>
-                        ${isLoggedIn ? `<button class="delete-btn" data-index="${index}"><i class="fas fa-trash"></i></button>` : ''}
-                    </div>
-                `).join('');
-
-                // Add delete event listeners if logged in
-                if (isLoggedIn) {
-                    document.querySelectorAll('.delete-btn').forEach(btn => {
-                        btn.addEventListener('click', (e) => {
-                            e.stopPropagation();
-                            deletePhoto(parseInt(btn.dataset.index));
-                        });
-                    });
-                }
-            }
         }
     }
+}
 
     // Handle photo upload
     function handlePhotoUpload(e) {
@@ -192,18 +181,18 @@ function initAdminSystem() {
         reader.readAsDataURL(fileInput.files[0]);
     }
 
-    // Save photo to localStorage
     function savePhoto(title, imageData) {
-        const gallery = JSON.parse(localStorage.getItem('gallery')) || [];
-        gallery.push({ title, image: imageData });
-        localStorage.setItem('gallery', JSON.stringify(gallery));
-        
-        if (uploadModal) uploadModal.style.display = 'none';
-        if (uploadForm) uploadForm.reset();
-        loadGallery();
-        showToast('Photo uploaded successfully!', 'success');
-    }
-
+    const gallery = JSON.parse(localStorage.getItem('gallery')) || [];
+    gallery.push({ title, image: imageData });
+    localStorage.setItem('gallery', JSON.stringify(gallery));
+    
+    console.log('Photo saved:', { title, image: imageData.substring(0, 30) + '...' }); // Log sebagian data gambar
+    
+    if (uploadModal) uploadModal.style.display = 'none';
+    if (uploadForm) uploadForm.reset();
+    loadGallery();
+    showToast('Photo uploaded successfully!', 'success');
+}
     // Delete photo
     function deletePhoto(index) {
         const gallery = JSON.parse(localStorage.getItem('gallery')) || [];
@@ -1301,37 +1290,37 @@ function initAdminSystem() {
 
   // Load gallery from localStorage
   function loadGallery() {
+    const isLoggedIn = localStorage.getItem('adminLoggedIn') === 'true';
     const gallery = JSON.parse(localStorage.getItem('gallery')) || [];
     
-    if (gallery.length === 0) {
-      // Show placeholder if no images
-      galleryContainer.innerHTML = `
-        <div class="gallery-placeholder">
-          <i class="fas fa-image"></i>
-          <p>No photos yet. ${isLoggedIn ? 'Click "Add Photo" to upload.' : 'Check back later.'}</p>
-        </div>
-      `;
-    } else {
-      // Display gallery items
-      galleryContainer.innerHTML = gallery.map((item, index) => `
-        <div class="gallery-item">
-          <img src="${item.image}" alt="${item.title}" class="gallery-img">
-          <h3>${item.title}</h3>
-          ${isLoggedIn ? `<button class="delete-btn" data-index="${index}"><i class="fas fa-trash"></i></button>` : ''}
-        </div>
-      `).join('');
+    if (!galleryContainer) return;
 
-      // Add delete event listeners if logged in
-      if (isLoggedIn) {
-        document.querySelectorAll('.delete-btn').forEach(btn => {
-          btn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            deletePhoto(parseInt(btn.dataset.index));
-          });
-        });
-      }
+    if (gallery.length === 0) {
+        galleryContainer.innerHTML = `
+            <div class="gallery-placeholder">
+                <i class="fas fa-image"></i>
+                <p>No photos yet. ${isLoggedIn ? 'Click "Add Photo" to upload.' : 'Check back later.'}</p>
+            </div>
+        `;
+    } else {
+        galleryContainer.innerHTML = gallery.map((item, index) => `
+            <div class="gallery-item">
+                <img src="${item.image}" alt="${item.title}" class="gallery-img">
+                <h3>${item.title}</h3>
+                ${isLoggedIn ? `<button class="delete-btn" data-index="${index}"><i class="fas fa-trash"></i></button>` : ''}
+            </div>
+        `).join('');
+
+        if (isLoggedIn) {
+            document.querySelectorAll('.delete-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    deletePhoto(parseInt(btn.dataset.index));
+                });
+            });
+        }
     }
-  }
+}
 
   // Handle photo upload
   function handlePhotoUpload(e) {

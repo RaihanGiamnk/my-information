@@ -1071,10 +1071,6 @@ nav a i {
     background: linear-gradient(135deg, var(--darker), #1a0a2e);
 }
 
-/* Remove old background elements */
-.bg-gradient, .bg-pattern, #molecules {
-    display: none;
-}
 /* Add this to your style.css */
 #interactive-bg {
     position: fixed;
@@ -1398,10 +1394,15 @@ body:hover .hero-avatar {
   cursor: pointer;
   opacity: 0;
   transition: opacity 0.3s ease;
+  display: none; /* Sembunyikan secara default */
 }
 
 .gallery-item:hover .delete-btn {
   opacity: 1;
+}
+/* Hanya tampilkan jika admin login */
+.admin-logged-in .gallery-item .delete-btn {
+  display: flex;
 }
 /* Toast Notifications */
 .toast {
