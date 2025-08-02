@@ -939,3 +939,226 @@ function initAudioVisualizer() {
         }
     }
 }
+// Admin System
+function initAdminSystem() {
+  // Admin credentials (in a real app, these would be server-side)
+  const ADMIN_CREDENTIALS = {
+    username: "admin",
+    password: "raihangimank123" // Change this to a secure password
+  };
+
+  // DOM Elements
+  const loginModal = document.getElementById('loginModal');
+  const uploadModal = document.getElementById('uploadModal');
+  const adminControls = document.getElementById('adminControls');
+  const loginForm = document.getElementById('adminLoginForm');
+  const uploadForm = document.getElementById('photoUploadForm');
+  const logoutBtn = document.getElementById('logoutBtn');
+  const addPhotoBtn = document.getElementById('addPhotoBtn');
+  const galleryContainer = document.getElementById('galleryContainer');
+  const closeModals = document.querySelectorAll('.close-modal');
+
+  // Check if user is logged in
+  const isLoggedIn = localStorage.getItem('adminLoggedIn') === 'true';
+
+  // Initialize the system
+  function init() {
+    if (isLoggedIn) {
+      showAdminControls();
+      loadGallery();
+    }
+    
+    // Add login button to header
+    addLoginButton();
+    setupEventListeners();
+  }
+
+  // Add login button to header
+  function addLoginButton() {
+    const nav = document.querySelector('nav ul');
+    if (nav && !document.getElementById('adminLoginBtn')) {
+      const loginBtn = document.createElement('li');
+      loginBtn.id = 'adminLoginBtn';
+      loginBtn.innerHTML = `
+        <a href="#" class="nav-link" id="showLoginModal">
+          <i class="fas fa-lock"></i> Admin
+        </a>
+      `;
+      nav.appendChild(loginBtn);
+    }
+  }
+
+  // Setup event listeners
+  function setupEventListeners() {
+    // Show login modal
+    document.getElementById('showLoginModal')?.addEventListener('click', (e) => {
+      e.preventDefault();
+      loginModal.style.display = 'block';
+    });
+
+    // Close modals
+    closeModals.forEach(btn => {
+      btn.addEventListener('click', () => {
+        loginModal.style.display = 'none';
+        uploadModal.style.display = 'none';
+      });
+    });
+
+    // Click outside modal to close
+    window.addEventListener('click', (e) => {
+      if (e.target === loginModal) loginModal.style.display = 'none';
+      if (e.target === uploadModal) uploadModal.style.display = 'none';
+    });
+
+    // Login form
+    loginForm?.addEventListener('submit', handleLogin);
+
+    // Logout button
+    logoutBtn?.addEventListener('click', handleLogout);
+
+    // Add photo button
+    addPhotoBtn?.addEventListener('click', () => {
+      uploadModal.style.display = 'block';
+    });
+
+    // Upload form
+    uploadForm?.addEventListener('submit', handlePhotoUpload);
+  }
+
+  // Handle login
+  function handleLogin(e) {
+    e.preventDefault();
+    const username = document.getElementById('username').value;
+    const password = document.getElementById('password').value;
+
+    if (username === ADMIN_CREDENTIALS.username && password === ADMIN_CREDENTIALS.password) {
+      localStorage.setItem('adminLoggedIn', 'true');
+      loginModal.style.display = 'none';
+      showAdminControls();
+      loadGallery();
+      showToast('Login successful!', 'success');
+    } else {
+      showToast('Invalid credentials', 'error');
+    }
+  }
+
+  // Handle logout
+  function handleLogout() {
+    localStorage.removeItem('adminLoggedIn');
+    adminControls.style.display = 'none';
+    document.getElementById('adminLoginBtn')?.remove();
+    addLoginButton();
+    loadGallery(); // Reload gallery without edit controls
+    showToast('Logged out successfully', 'success');
+  }
+
+  // Show admin controls
+  function showAdminControls() {
+    adminControls.style.display = 'flex';
+    if (document.getElementById('adminLoginBtn')) {
+      document.getElementById('adminLoginBtn').style.display = 'none';
+    }
+  }
+
+  // Load gallery from localStorage
+  function loadGallery() {
+    const gallery = JSON.parse(localStorage.getItem('gallery')) || [];
+    
+    if (gallery.length === 0) {
+      // Show placeholder if no images
+      galleryContainer.innerHTML = `
+        <div class="gallery-placeholder">
+          <i class="fas fa-image"></i>
+          <p>No photos yet. ${isLoggedIn ? 'Click "Add Photo" to upload.' : 'Check back later.'}</p>
+        </div>
+      `;
+    } else {
+      // Display gallery items
+      galleryContainer.innerHTML = gallery.map((item, index) => `
+        <div class="gallery-item">
+          <img src="${item.image}" alt="${item.title}" class="gallery-img">
+          <h3>${item.title}</h3>
+          ${isLoggedIn ? `<button class="delete-btn" data-index="${index}"><i class="fas fa-trash"></i></button>` : ''}
+        </div>
+      `).join('');
+
+      // Add delete event listeners if logged in
+      if (isLoggedIn) {
+        document.querySelectorAll('.delete-btn').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            deletePhoto(parseInt(btn.dataset.index));
+          });
+        });
+      }
+    }
+  }
+
+  // Handle photo upload
+  function handlePhotoUpload(e) {
+    e.preventDefault();
+    const title = document.getElementById('photoTitle').value;
+    const fileInput = document.getElementById('photoFile');
+    
+    if (!fileInput.files[0]) {
+      showToast('Please select an image file', 'error');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      const imageData = e.target.result;
+      savePhoto(title, imageData);
+    };
+    reader.readAsDataURL(fileInput.files[0]);
+  }
+
+  // Save photo to localStorage
+  function savePhoto(title, imageData) {
+    const gallery = JSON.parse(localStorage.getItem('gallery')) || [];
+    gallery.push({ title, image: imageData });
+    localStorage.setItem('gallery', JSON.stringify(gallery));
+    
+    uploadModal.style.display = 'none';
+    uploadForm.reset();
+    loadGallery();
+    showToast('Photo uploaded successfully!', 'success');
+  }
+
+  // Delete photo
+  function deletePhoto(index) {
+    const gallery = JSON.parse(localStorage.getItem('gallery')) || [];
+    gallery.splice(index, 1);
+    localStorage.setItem('gallery', JSON.stringify(gallery));
+    loadGallery();
+    showToast('Photo deleted', 'success');
+  }
+
+  // Show toast notification
+  function showToast(message, type) {
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    toast.textContent = message;
+    document.body.appendChild(toast);
+    
+    setTimeout(() => {
+      toast.classList.add('show');
+    }, 10);
+    
+    setTimeout(() => {
+      toast.classList.remove('show');
+      setTimeout(() => {
+        toast.remove();
+      }, 300);
+    }, 3000);
+  }
+
+  // Initialize the admin system
+  init();
+}
+
+// Add this to your DOMContentLoaded event listener
+document.addEventListener('DOMContentLoaded', () => {
+  // ... existing code ...
+  initAdminSystem();
+});
