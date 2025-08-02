@@ -1401,29 +1401,3 @@ document.addEventListener('DOMContentLoaded', () => {
   // ... existing code ...
   initAdminSystem();
 });
-// Add to script.js
-function initMobileMenu() {
-    const toggleBtn = document.getElementById('mobileMenuToggle');
-    const navMenu = document.querySelector('nav ul');
-    
-    toggleBtn.addEventListener('click', () => {
-        navMenu.classList.toggle('active');
-        toggleBtn.innerHTML = navMenu.classList.contains('active') 
-            ? '<i class="fas fa-times"></i>' 
-            : '<i class="fas fa-bars"></i>';
-    });
-    
-    // Close menu when clicking on a link
-    document.querySelectorAll('nav a').forEach(link => {
-        link.addEventListener('click', () => {
-            navMenu.classList.remove('active');
-            toggleBtn.innerHTML = '<i class="fas fa-bars"></i>';
-        });
-    });
-}
-
-// Add to DOMContentLoaded event
-document.addEventListener('DOMContentLoaded', () => {
-    initMobileMenu();
-    // ... rest of your code
-});
