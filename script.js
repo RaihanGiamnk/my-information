@@ -1,12 +1,250 @@
-/**
- * Main Application Initialization
- */
+// Admin System - Optimized Version
+function initAdminSystem() {
+    // DOM Elements
+    const loginModal = document.getElementById('loginModal');
+    const uploadModal = document.getElementById('uploadModal');
+    const adminControls = document.getElementById('adminControls');
+    const loginForm = document.getElementById('adminLoginForm');
+    const uploadForm = document.getElementById('photoUploadForm');
+    const logoutBtn = document.getElementById('logoutBtn');
+    const addPhotoBtn = document.getElementById('addPhotoBtn');
+    const galleryContainer = document.getElementById('galleryContainer');
+
+    // Admin credentials (in production, use server-side authentication)
+    const ADMIN_CREDENTIALS = {
+        username: "admin",
+        password: "raihangimank123" // Change this in production
+    };
+
+    // Initialize modals as hidden
+    if (loginModal) loginModal.style.display = 'none';
+    if (uploadModal) uploadModal.style.display = 'none';
+    if (adminControls) adminControls.style.display = 'none';
+
+    // Check login status
+    const isLoggedIn = localStorage.getItem('adminLoggedIn') === 'true';
+
+    // Initialize the system
+    function init() {
+        if (isLoggedIn) {
+            showAdminControls();
+            loadGallery();
+        }
+        addLoginButton();
+        setupEventListeners();
+    }
+
+    // Add login button to header
+    function addLoginButton() {
+        const nav = document.querySelector('nav ul');
+        if (nav && !document.getElementById('adminLoginBtn')) {
+            const loginBtn = document.createElement('li');
+            loginBtn.id = 'adminLoginBtn';
+            loginBtn.innerHTML = `
+                <a href="#" class="nav-link" id="showLoginModal">
+                    <i class="fas fa-lock"></i> Admin
+                </a>
+            `;
+            nav.appendChild(loginBtn);
+        }
+    }
+
+    // Setup event listeners using event delegation
+    function setupEventListeners() {
+        document.addEventListener('click', (e) => {
+            // Show login modal
+            if (e.target.id === 'showLoginModal' || e.target.closest('#showLoginModal')) {
+                e.preventDefault();
+                loginModal.style.display = 'block';
+            }
+
+            // Close modals
+            if (e.target.classList.contains('close-modal')) {
+                loginModal.style.display = 'none';
+                uploadModal.style.display = 'none';
+            }
+
+            // Click outside modal to close
+            if (e.target === loginModal) loginModal.style.display = 'none';
+            if (e.target === uploadModal) uploadModal.style.display = 'none';
+        });
+
+        // Login form
+        if (loginForm) {
+            loginForm.addEventListener('submit', handleLogin);
+        }
+
+        // Logout button
+        if (logoutBtn) {
+            logoutBtn.addEventListener('click', handleLogout);
+        }
+
+        // Add photo button
+        if (addPhotoBtn) {
+            addPhotoBtn.addEventListener('click', () => {
+                uploadModal.style.display = 'block';
+            });
+        }
+
+        // Upload form
+        if (uploadForm) {
+            uploadForm.addEventListener('submit', handlePhotoUpload);
+        }
+    }
+
+    // Handle login
+    function handleLogin(e) {
+        e.preventDefault();
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
+
+        if (username === ADMIN_CREDENTIALS.username && password === ADMIN_CREDENTIALS.password) {
+            localStorage.setItem('adminLoggedIn', 'true');
+            loginModal.style.display = 'none';
+            showAdminControls();
+            loadGallery();
+            showToast('Login successful!', 'success');
+        } else {
+            showToast('Invalid credentials', 'error');
+        }
+    }
+
+    // Handle logout
+    function handleLogout() {
+        localStorage.removeItem('adminLoggedIn');
+        if (adminControls) adminControls.style.display = 'none';
+        document.getElementById('adminLoginBtn')?.remove();
+        addLoginButton();
+        loadGallery();
+        showToast('Logged out successfully', 'success');
+    }
+
+    // Show admin controls
+    function showAdminControls() {
+        if (adminControls) {
+            adminControls.style.display = 'flex';
+            const adminLoginBtn = document.getElementById('adminLoginBtn');
+            if (adminLoginBtn) adminLoginBtn.style.display = 'none';
+        }
+    }
+
+    // Load gallery from localStorage
+    function loadGallery() {
+        // Use idle callback for better performance
+        if ('requestIdleCallback' in window) {
+            requestIdleCallback(() => {
+                _loadGallery();
+            });
+        } else {
+            setTimeout(_loadGallery, 0);
+        }
+
+        function _loadGallery() {
+            const gallery = JSON.parse(localStorage.getItem('gallery')) || [];
+            
+            if (!galleryContainer) return;
+
+            if (gallery.length === 0) {
+                galleryContainer.innerHTML = `
+                    <div class="gallery-placeholder">
+                        <i class="fas fa-image"></i>
+                        <p>No photos yet. ${isLoggedIn ? 'Click "Add Photo" to upload.' : 'Check back later.'}</p>
+                    </div>
+                `;
+            } else {
+                galleryContainer.innerHTML = gallery.map((item, index) => `
+                    <div class="gallery-item">
+                        <img src="${item.image}" alt="${item.title}" class="gallery-img">
+                        <h3>${item.title}</h3>
+                        ${isLoggedIn ? `<button class="delete-btn" data-index="${index}"><i class="fas fa-trash"></i></button>` : ''}
+                    </div>
+                `).join('');
+
+                // Add delete event listeners if logged in
+                if (isLoggedIn) {
+                    document.querySelectorAll('.delete-btn').forEach(btn => {
+                        btn.addEventListener('click', (e) => {
+                            e.stopPropagation();
+                            deletePhoto(parseInt(btn.dataset.index));
+                        });
+                    });
+                }
+            }
+        }
+    }
+
+    // Handle photo upload
+    function handlePhotoUpload(e) {
+        e.preventDefault();
+        const title = document.getElementById('photoTitle').value;
+        const fileInput = document.getElementById('photoFile');
+        
+        if (!fileInput.files[0]) {
+            showToast('Please select an image file', 'error');
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const imageData = e.target.result;
+            savePhoto(title, imageData);
+        };
+        reader.readAsDataURL(fileInput.files[0]);
+    }
+
+    // Save photo to localStorage
+    function savePhoto(title, imageData) {
+        const gallery = JSON.parse(localStorage.getItem('gallery')) || [];
+        gallery.push({ title, image: imageData });
+        localStorage.setItem('gallery', JSON.stringify(gallery));
+        
+        if (uploadModal) uploadModal.style.display = 'none';
+        if (uploadForm) uploadForm.reset();
+        loadGallery();
+        showToast('Photo uploaded successfully!', 'success');
+    }
+
+    // Delete photo
+    function deletePhoto(index) {
+        const gallery = JSON.parse(localStorage.getItem('gallery')) || [];
+        gallery.splice(index, 1);
+        localStorage.setItem('gallery', JSON.stringify(gallery));
+        loadGallery();
+        showToast('Photo deleted', 'success');
+    }
+
+    // Show toast notification
+    function showToast(message, type) {
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        toast.textContent = message;
+        document.body.appendChild(toast);
+        
+        setTimeout(() => {
+            toast.classList.add('show');
+        }, 10);
+        
+        setTimeout(() => {
+            toast.classList.remove('show');
+            setTimeout(() => {
+                toast.remove();
+            }, 300);
+        }, 3000);
+    }
+
+    // Initialize the admin system
+    init();
+}
+
+// Initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
-    // YouTube API Configuration
+    // Initialize admin system first for better performance
+    initAdminSystem();
+    
+    // Then initialize other components
     const YOUTUBE_API_KEY = 'AIzaSyDSpn25E7vnaiqdONYgZMYf9jg2GJ1ECRc';
     const CHANNEL_ID = 'UCIO4JfMJH2n0q4JuZDWudHA';
 
-    // Initialize all components
     initHeaderEffects();
     initNavigation();
     initYouTubeStats(YOUTUBE_API_KEY, CHANNEL_ID);
@@ -15,6 +253,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initContactForm();
     initMoleculeBackground();
     initTypewriter();
+    initFloatingParticles();
 });
 
 /**
