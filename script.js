@@ -242,7 +242,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initAdminSystem();
     
     // Then initialize other components
-    const YOUTUBE_API_KEY = 'AIzaSyA2GhpnaPvfvmCDs-bWrTUw0EJdj6kok_w';
+    const YOUTUBE_API_KEY = 'AIzaSyCx394fISZ3Z1gEzwfSUrNG5um5RcGtM9Q';
     const CHANNEL_ID = 'UCIO4JfMJH2n0q4JuZDWudHA';
 
     initHeaderEffects();

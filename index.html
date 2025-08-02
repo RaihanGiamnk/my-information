@@ -13,7 +13,9 @@
 </head>
 <body>
     <!-- Background Elements -->
-    <canvas id="interactive-bg"></canvas>
+    <div class="bg-gradient"></div>
+    <div class="bg-pattern"></div>
+    <canvas id="molecules"></canvas>
     <link rel="icon" href="images/ICON.jpg" type="image/jpeg">
     
     <!-- Header -->
@@ -94,7 +96,7 @@
     <!-- Gallery Section -->
     <section id="gallery" class="gallery-section">
         <h2 class="section-title">My Gallery</h2>
-            <div class="gallery-grid" id="galleryContainer">
+        <div class="gallery-grid" id="galleryContainer">
             <div class="gallery-placeholder">
                 <i class="fas fa-image"></i>
                 <p>Gallery coming soon</p>
@@ -172,57 +174,65 @@
         </a>
     </div>
 
-    <!-- Splash Screen -->
-    <div class="splash-screen">
-        <img src="images/LOGO.jpg" alt="Logo" class="splash-logo">
-        <h1 class="splash-text">RaihanGimank</h1>
-        <p class="splash-subtext">Content Creator</p>
-        <div class="loading-bar">
-            <div class="loading-progress"></div>
-        </div>
-    </div>
-
-    <!-- Admin Login Modal -->
-    <div id="loginModal" class="modal">
-      <div class="modal-content">
-        <span class="close-modal">&times;</span>
-        <h2>Admin Login</h2>
-        <form id="adminLoginForm">
-          <div class="form-group">
-            <input type="text" id="username" placeholder="Username" required>
-          </div>
-          <div class="form-group">
-            <input type="password" id="password" placeholder="Password" required>
-          </div>
-          <button type="submit" class="btn btn-primary">Login</button>
-        </form>
-      </div>
-    </div>
-
-    <!-- Admin Controls (hidden by default) -->
-    <div id="adminControls" style="display: none;">
-      <button id="logoutBtn" class="btn btn-secondary">Logout</button>
-      <button id="addPhotoBtn" class="btn btn-primary">Add Photo</button>
-    </div>
-
-    <!-- Photo Upload Modal -->
-    <div id="uploadModal" class="modal">
-      <div class="modal-content">
-        <span class="close-modal">&times;</span>
-        <h2>Upload New Photo</h2>
-        <form id="photoUploadForm">
-          <div class="form-group">
-            <input type="text" id="photoTitle" placeholder="Photo Title" required>
-          </div>
-          <div class="form-group">
-            <input type="file" id="photoFile" accept="image/*" required>
-          </div>
-          <button type="submit" class="btn btn-primary">Upload</button>
-        </form>
-      </div>
-    </div>
-
     <script src="script.js"></script>
     <script src="bg-particles.js"></script>
+    <!-- Floating Particles Background -->
+<div class="floating-particles" id="particles"></div>
+<!-- Interactive Particles Canvas -->
+<canvas id="interactive-bg"></canvas>
+<!-- Splash Screen -->
+<div class="splash-screen">
+    <img src="images/LOGO.jpg" alt="Logo" class="splash-logo">
+    <h1 class="splash-text">RaihanGimank</h1>
+    <p class="splash-subtext">Content Creator</p>
+    <div class="loading-bar">
+        <div class="loading-progress"></div>
+    </div>
+</div>
+<div class="floating-elements">
+    <div class="floating-element shape1"></div>
+    <div class="floating-element shape2"></div>
+    <div class="floating-element shape3"></div>
+</div>
+<!-- Admin Login Modal -->
+<div id="loginModal" class="modal">
+  <div class="modal-content">
+    <span class="close-modal">&times;</span>
+    <h2>Admin Login</h2>
+    <form id="adminLoginForm">
+      <div class="form-group">
+        <input type="text" id="username" placeholder="Username" required>
+      </div>
+      <div class="form-group">
+        <input type="password" id="password" placeholder="Password" required>
+      </div>
+      <button type="submit" class="btn btn-primary">Login</button>
+    </form>
+  </div>
+</div>
+
+<!-- Admin Controls (hidden by default) -->
+<div id="adminControls" style="display: none;">
+  <button id="logoutBtn" class="btn btn-secondary">Logout</button>
+  <button id="addPhotoBtn" class="btn btn-primary">Add Photo</button>
+</div>
+
+<!-- Photo Upload Modal -->
+<div id="uploadModal" class="modal">
+  <div class="modal-content">
+    <span class="close-modal">&times;</span>
+    <h2>Upload New Photo</h2>
+    <form id="photoUploadForm">
+      <div class="form-group">
+        <input type="text" id="photoTitle" placeholder="Photo Title" required>
+      </div>
+      <div class="form-group">
+        <input type="file" id="photoFile" accept="image/*" required>
+      </div>
+      <button type="submit" class="btn btn-primary">Upload</button>
+    </form>
+  </div>
+</div>
 </body>
-                </html>
+    </html>
+    
