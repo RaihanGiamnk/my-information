@@ -1299,53 +1299,48 @@ function initEasterEgg() {
     }
   });
 
-  // Deteksi mobile touch
-  let touchStartTime = 0;
-
+  // Deteksi gesture untuk mobile (3x tap + swipe up)
   document.addEventListener(
     "touchstart",
     (e) => {
-      touchStartTime = Date.now();
-      touchStartY = e.touches[0].clientY;
-      tapCount++;
+      // Abaikan jika Easter Egg sedang aktif
+      if (egg.classList.contains("active")) return;
 
-      // Reset tap count jika jeda terlalu lama
-      if (Date.now() - lastTapTime > 300) tapCount = 1;
-      lastTapTime = Date.now();
+      touchStartY = e.changedTouches[0].screenY;
 
-      // Jika 3 tap cepat
-      if (tapCount >= 3) {
-        tapCount = 0;
-        showEgg();
+      // Hitung tap cepat
+      const now = Date.now();
+      if (now - lastTapTime < 300) {
+        // Dalam 300ms
+        tapCount++;
+      } else {
+        tapCount = 1;
       }
+      lastTapTime = now;
     },
-    { passive: true }
+    false
   );
 
-  // Alternatif gesture: swipe up setelah tap
   document.addEventListener(
     "touchend",
     (e) => {
-      if (Date.now() - touchStartTime > 500) return; // Abaikan jika terlalu lama
-      touchEndY = e.changedTouches[0].clientY;
+      // Abaikan jika Easter Egg sedang aktif
+      if (egg.classList.contains("active")) return;
 
-      if (touchStartY - touchEndY > 100) {
-        // Swipe up
+      touchEndY = e.changedTouches[0].screenY;
+
+      // Deteksi swipe up (minimal 100px) setelah 3x tap
+      if (tapCount >= 3 && touchStartY - touchEndY > 100) {
         showEgg();
+        tapCount = 0; // Reset
       }
     },
-    { passive: true }
+    false
   );
-
-  // Deteksi keyboard (untuk desktop)
-  document.addEventListener("keydown", (e) => {
-    typedKeys.push(e.key.toLowerCase());
-    if (typedKeys.length > secretCode.length) typedKeys.shift();
-    if (typedKeys.join("") === secretCode.join("")) showEgg();
-  });
 }
 
-// Inisialisasi setelah DOM siap
-document.addEventListener("DOMContentLoaded", () => {
+// Panggil setelah semua konten dimuat
+document.addEventListener("DOMContentLoaded", function () {
+  // Tunggu 1 detik setelah DOM selesai dimuat
   setTimeout(initEasterEgg, 1000);
 });
