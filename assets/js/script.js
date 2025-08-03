@@ -1148,3 +1148,32 @@ function initAchievements() {
 
 // Tambahkan ke DOMContentLoaded
 document.addEventListener('DOMContentLoaded', initAchievements);
+// Support Button Click Effect
+document.querySelector('.support-btn')?.addEventListener('click', (e) => {
+  e.preventDefault();
+  const url = e.currentTarget.getAttribute('href');
+  
+  // Create toast notification
+  const toast = document.createElement('div');
+  toast.className = 'support-toast';
+  toast.innerHTML = `
+    <i class="fas fa-heart"></i>
+    <span>Terima kasih atas dukunganmu!</span>
+  `;
+  document.body.appendChild(toast);
+  
+  // Show toast
+  setTimeout(() => {
+    toast.classList.add('show');
+  }, 100);
+  
+  // Redirect after 1.5 seconds
+  setTimeout(() => {
+    window.open(url, '_blank');
+  }, 1500);
+  
+  // Remove toast
+  setTimeout(() => {
+    toast.remove();
+  }, 3000);
+});

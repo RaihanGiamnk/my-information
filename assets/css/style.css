@@ -1655,3 +1655,77 @@ body:hover .hero-avatar {
 .video-link:hover {
     color: var(--secondary);
 }
+/* Support Me Button */
+.support-container {
+  position: fixed;
+  bottom: 30px;
+  left: 30px;
+  z-index: 99;
+}
+
+.support-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.8rem 1.5rem;
+  background: linear-gradient(135deg, #FF206E, #FF6B8B);
+  color: white;
+  border-radius: 50px;
+  text-decoration: none;
+  font-weight: 600;
+  box-shadow: 0 5px 15px rgba(255, 32, 110, 0.4);
+  transition: all 0.3s ease;
+  animation: pulse 2s infinite;
+}
+
+.support-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(255, 32, 110, 0.6);
+  animation: none;
+}
+
+.support-btn i {
+  font-size: 1.2rem;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .support-container {
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+}
+/* Support Toast */
+.support-toast {
+  position: fixed;
+  bottom: 100px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(255, 32, 110, 0.9);
+  color: white;
+  padding: 1rem 2rem;
+  border-radius: 50px;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: 1000;
+  backdrop-filter: blur(5px);
+}
+
+.support-toast.show {
+  opacity: 1;
+}
+
+.support-toast i {
+  color: #FFD700;
+}
