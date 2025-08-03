@@ -1120,21 +1120,32 @@ function initAchievements() {
       title: "First Visit",
       message: "Welcome to my website! Thanks for visiting.",
       earned: false,
+      show: false,
     },
     watchedVideo: {
       title: "Video Watcher",
       message: "You watched a video! Awesome!",
       earned: false,
+      show: false,
     },
     sentMessage: {
       title: "Social Butterfly",
       message: "You sent a message in the chat!",
       earned: false,
+      show: false,
     },
     exploredAll: {
       title: "Explorer",
       message: "You visited all sections of the website!",
       earned: false,
+      show: false,
+    },
+    foundEasterEgg: {
+      // Achievement baru untuk Easter Egg
+      title: "Secret Finder",
+      message: "You discovered the hidden Easter Egg!",
+      earned: false,
+      show: false,
     },
   };
 
@@ -1161,10 +1172,22 @@ function initAchievements() {
   // Unlock achievement
   function unlockAchievement(achievementId) {
     const achievement = achievements[achievementId];
-    if (!achievement || achievement.earned) return;
+    if (!achievement || achievement.earned) return false;
 
     achievement.earned = true;
+    achievement.show = true;
+
+    // Simpan ke localStorage jika perlu
+    if (typeof localStorage !== "undefined") {
+      const savedAchievements = JSON.parse(
+        localStorage.getItem("achievements") || "{}"
+      );
+      savedAchievements[achievementId] = true;
+      localStorage.setItem("achievements", JSON.stringify(savedAchievements));
+    }
+
     showAchievementToast(achievement.message);
+    return true;
   }
 
   // Show achievement toast
@@ -1217,7 +1240,7 @@ function initAchievements() {
 }
 
 // Tambahkan ke DOMContentLoaded
-document.addEventListener("DOMContentLoaded", initAchievements);
+document.addEventListener("DOMContentLoaded", initAchievements, initEasterEgg);
 // Support Button Click Effect
 document.querySelector(".support-btn")?.addEventListener("click", (e) => {
   e.preventDefault();
@@ -1268,16 +1291,23 @@ function initEasterEgg() {
 
   // Tampilkan Easter Egg
   function showEgg() {
+    const egg = document.getElementById("easter-egg");
     egg.style.display = "block";
     egg.classList.add("active");
 
-    // Sembunyikan setelah 3 detik
-    setTimeout(resetEgg, 3000);
+    // Unlock achievement
+    unlockAchievement("foundEasterEgg");
 
     // Getaran jika didukung
     if (navigator.vibrate) {
       navigator.vibrate([200, 100, 200]);
     }
+
+    // Sembunyikan setelah 3 detik
+    setTimeout(() => {
+      egg.style.display = "none";
+      egg.classList.remove("active");
+    }, 3000);
   }
 
   // Deteksi keyboard untuk desktop
