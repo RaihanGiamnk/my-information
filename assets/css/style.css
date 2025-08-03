@@ -1935,3 +1935,27 @@ body:hover .hero-avatar {
     transform: translate(-50%, -55%) rotate(5deg);
   }
 }
+/* Easter Egg Mobile Responsive */
+.easter-egg {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 80vw; /* Lebih responsif untuk mobile */
+  max-width: 300px;
+  padding: 1.5rem;
+  z-index: 99999; /* Pastikan di atas semua elemen */
+  /* ... style lainnya tetap ... */
+}
+
+@media (max-width: 768px) {
+  .easter-egg {
+    padding: 1rem;
+  }
+  .easter-egg .initials {
+    font-size: 3rem;
+  }
+  .easter-egg .message {
+    font-size: 1rem;
+  }
+}
