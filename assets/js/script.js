@@ -1,7 +1,5 @@
 // Initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
-    // Initialize admin system first for better performance
-    initAdminSystem();
     
     // Then initialize other components
     const YOUTUBE_API_KEY = 'AIzaSyCx394fISZ3Z1gEzwfSUrNG5um5RcGtM9Q';
@@ -940,54 +938,7 @@ function initAudioVisualizer() {
         }
     }
 }
-// Admin System
-function initAdminSystem() {
-  // Admin credentials (in a real app, these would be server-side)
-  const ADMIN_CREDENTIALS = {
-    username: "admin",
-    password: "raihangimank123" // Change this to a secure password
-  };
 
-  // DOM Elements
-  const loginModal = document.getElementById('loginModal');
-  const uploadModal = document.getElementById('uploadModal');
-  const adminControls = document.getElementById('adminControls');
-  const loginForm = document.getElementById('adminLoginForm');
-  const uploadForm = document.getElementById('photoUploadForm');
-  const logoutBtn = document.getElementById('logoutBtn');
-  const addPhotoBtn = document.getElementById('addPhotoBtn');
-  const galleryContainer = document.getElementById('galleryContainer');
-  const closeModals = document.querySelectorAll('.close-modal');
-
-  // Check if user is logged in
-  const isLoggedIn = localStorage.getItem('adminLoggedIn') === 'true';
-
-  // Initialize the system
-  function init() {
-    if (isLoggedIn) {
-      showAdminControls();
-      loadGallery();
-    }
-    
-    // Add login button to header
-    addLoginButton();
-    setupEventListeners();
-  }
-
-  // Add login button to header
-  function addLoginButton() {
-    const nav = document.querySelector('nav ul');
-    if (nav && !document.getElementById('adminLoginBtn')) {
-      const loginBtn = document.createElement('li');
-      loginBtn.id = 'adminLoginBtn';
-      loginBtn.innerHTML = `
-        <a href="#" class="nav-link" id="showLoginModal">
-          <i class="fas fa-lock"></i> Admin
-        </a>
-      `;
-      nav.appendChild(loginBtn);
-    }
-  }
 
   // Setup event listeners
   function setupEventListeners() {
@@ -1095,68 +1046,7 @@ function initAdminSystem() {
     }
 }
 
-  // Handle photo upload
-  function handlePhotoUpload(e) {
-    e.preventDefault();
-    const title = document.getElementById('photoTitle').value;
-    const fileInput = document.getElementById('photoFile');
-    
-    if (!fileInput.files[0]) {
-      showToast('Please select an image file', 'error');
-      return;
-    }
 
-    const reader = new FileReader();
-    reader.onload = function(e) {
-      const imageData = e.target.result;
-      savePhoto(title, imageData);
-    };
-    reader.readAsDataURL(fileInput.files[0]);
-  }
-
-  // Save photo to localStorage
-  function savePhoto(title, imageData) {
-    const gallery = JSON.parse(localStorage.getItem('gallery')) || [];
-    gallery.push({ title, image: imageData });
-    localStorage.setItem('gallery', JSON.stringify(gallery));
-    
-    uploadModal.style.display = 'none';
-    uploadForm.reset();
-    loadGallery();
-    showToast('Photo uploaded successfully!', 'success');
-  }
-
-  // Delete photo
-  function deletePhoto(index) {
-    const gallery = JSON.parse(localStorage.getItem('gallery')) || [];
-    gallery.splice(index, 1);
-    localStorage.setItem('gallery', JSON.stringify(gallery));
-    loadGallery();
-    showToast('Photo deleted', 'success');
-  }
-
-  // Show toast notification
-  function showToast(message, type) {
-    const toast = document.createElement('div');
-    toast.className = `toast ${type}`;
-    toast.textContent = message;
-    document.body.appendChild(toast);
-    
-    setTimeout(() => {
-      toast.classList.add('show');
-    }, 10);
-    
-    setTimeout(() => {
-      toast.classList.remove('show');
-      setTimeout(() => {
-        toast.remove();
-      }, 300);
-    }, 3000);
-  }
-
-  // Initialize the admin system
-  init();
-}
 
 // Add this to your DOMContentLoaded event listener
 document.addEventListener('DOMContentLoaded', () => {
