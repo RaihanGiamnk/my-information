@@ -1,7 +1,7 @@
 // Initialize when DOM is ready
 document.addEventListener("DOMContentLoaded", () => {
   // Then initialize other components
-  const YOUTUBE_API_KEY = "AIzaSyCx394fISZ3Z1gEzwfSUrNG5um5RcGtM9Q";
+  const YOUTUBE_API_KEY = "AIzaSyCzHENwh3Uyd69SqeSenTFOIcXDIe0CkJI";
   const CHANNEL_ID = "UCIO4JfMJH2n0q4JuZDWudHA";
 
   initHeaderEffects();
