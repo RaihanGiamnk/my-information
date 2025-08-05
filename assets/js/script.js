@@ -1024,22 +1024,32 @@ function setupEventListeners() {
 }
 
 // Handle login
-function handleLogin(e) {
+async function handleLogin(e) {
   e.preventDefault();
   const username = document.getElementById("username").value;
   const password = document.getElementById("password").value;
+  const loginForm = document.getElementById("loginForm");
 
   if (
     username === ADMIN_CREDENTIALS.username &&
     password === ADMIN_CREDENTIALS.password
   ) {
     localStorage.setItem("adminLoggedIn", "true");
-    loginModal.style.display = "none";
+    hideLoginModal();
     showAdminControls();
     loadGallery();
     showToast("Login successful!", "success");
   } else {
+    // Add shake effect
+    loginForm.classList.add("shake");
+    setTimeout(() => loginForm.classList.remove("shake"), 500);
+
     showToast("Invalid credentials", "error");
+
+    // Vibrate if supported
+    if (navigator.vibrate) {
+      navigator.vibrate([100, 50, 100]);
+    }
   }
 }
 
@@ -1584,3 +1594,77 @@ document.addEventListener("DOMContentLoaded", () => {
   // ... existing code ...
   initAdminSystem();
 });
+// Mobile Secret Login (3x tap + swipe up)
+let touchStartY = 0;
+let tapCount = 0;
+let lastTapTime = 0;
+
+document.addEventListener(
+  "touchstart",
+  (e) => {
+    // Reset tap count if too much time passed between taps
+    const currentTime = new Date().getTime();
+    if (currentTime - lastTapTime > 300) {
+      // 300ms threshold
+      tapCount = 0;
+    }
+    lastTapTime = currentTime;
+
+    // Count taps
+    tapCount++;
+    touchStartY = e.touches[0].clientY;
+
+    // If 3 taps detected, prepare for swipe up
+    if (tapCount >= 3) {
+      // Show visual feedback (subtle vibration if supported)
+      if (navigator.vibrate) {
+        navigator.vibrate(100);
+      }
+    }
+  },
+  false
+);
+
+document.addEventListener(
+  "touchend",
+  (e) => {
+    if (tapCount >= 3) {
+      const touchEndY = e.changedTouches[0].clientY;
+      const swipeDistance = touchStartY - touchEndY;
+
+      // If swipe up is more than 100px
+      if (swipeDistance > 100) {
+        // Check if already logged in
+        if (localStorage.getItem("adminLoggedIn") !== "true") {
+          showLoginModal();
+        }
+        tapCount = 0; // Reset counter
+      }
+    }
+  },
+  false
+);
+function showLoginModal() {
+  // Add visual feedback
+  document.body.classList.add("secret-login-active");
+  setTimeout(() => {
+    document.body.classList.remove("secret-login-active");
+  }, 1000);
+
+  // Show modal
+  loginModal.style.display = "flex";
+  setTimeout(() => loginModal.classList.add("active"), 10);
+
+  // Auto-focus username field
+  setTimeout(() => {
+    document.getElementById("username").focus();
+  }, 300);
+}
+
+function hideLoginModal() {
+  loginModal.classList.remove("active");
+  setTimeout(() => {
+    loginModal.style.display = "none";
+    document.body.classList.remove("secret-login-active");
+  }, 300);
+}
