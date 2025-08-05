@@ -1344,3 +1344,243 @@ document.addEventListener("DOMContentLoaded", function () {
   // Tunggu 1 detik setelah DOM selesai dimuat
   setTimeout(initEasterEgg, 1000);
 });
+// Admin System
+function initAdminSystem() {
+  const ADMIN_CREDENTIALS = {
+    username: "admin",
+    password: "raihangimank123", // Change this to a secure password
+  };
+
+  const loginModal = document.getElementById("loginModal");
+  const uploadModal = document.getElementById("uploadModal");
+  const loginForm = document.getElementById("loginForm");
+  const uploadForm = document.getElementById("uploadForm");
+  const addPhotoBtn = document.getElementById("addPhotoBtn");
+  const logoutBtn = document.getElementById("logoutBtn");
+  const adminControls = document.getElementById("adminControls");
+  const galleryContainer = document.getElementById("galleryContainer");
+  const closeModals = document.querySelectorAll(".close-modal");
+
+  // Check if already logged in
+  if (localStorage.getItem("adminLoggedIn") === "true") {
+    showAdminControls();
+  }
+
+  // Setup event listeners
+  setupEventListeners();
+
+  function setupEventListeners() {
+    // Show login modal
+    document.addEventListener("keydown", (e) => {
+      if (
+        e.ctrlKey &&
+        e.key === "k" &&
+        !loginModal.classList.contains("active")
+      ) {
+        e.preventDefault();
+        showLoginModal();
+      }
+    });
+
+    // Close modals
+    closeModals.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        hideLoginModal();
+        hideUploadModal();
+      });
+    });
+
+    // Click outside modal to close
+    window.addEventListener("click", (e) => {
+      if (e.target === loginModal) hideLoginModal();
+      if (e.target === uploadModal) hideUploadModal();
+    });
+
+    // Login form
+    loginForm?.addEventListener("submit", handleLogin);
+
+    // Logout button
+    logoutBtn?.addEventListener("click", handleLogout);
+
+    // Add photo button
+    addPhotoBtn?.addEventListener("click", showUploadModal);
+
+    // Upload form
+    uploadForm?.addEventListener("submit", handlePhotoUpload);
+  }
+
+  function showLoginModal() {
+    loginModal.style.display = "block";
+    setTimeout(() => loginModal.classList.add("active"), 10);
+  }
+
+  function hideLoginModal() {
+    loginModal.classList.remove("active");
+    setTimeout(() => (loginModal.style.display = "none"), 300);
+  }
+
+  function showUploadModal() {
+    uploadModal.style.display = "block";
+    setTimeout(() => uploadModal.classList.add("active"), 10);
+  }
+
+  function hideUploadModal() {
+    uploadModal.classList.remove("active");
+    setTimeout(() => (uploadModal.style.display = "none"), 300);
+  }
+
+  async function handleLogin(e) {
+    e.preventDefault();
+    const username = document.getElementById("username").value;
+    const password = document.getElementById("password").value;
+
+    if (
+      username === ADMIN_CREDENTIALS.username &&
+      password === ADMIN_CREDENTIALS.password
+    ) {
+      localStorage.setItem("adminLoggedIn", "true");
+      hideLoginModal();
+      showAdminControls();
+      loadGallery();
+      showToast("Login successful!", "success");
+    } else {
+      showToast("Invalid credentials", "error");
+    }
+  }
+
+  function handleLogout() {
+    localStorage.removeItem("adminLoggedIn");
+    adminControls.style.display = "none";
+    loadGallery();
+    showToast("Logged out successfully", "success");
+  }
+
+  function showAdminControls() {
+    adminControls.style.display = "flex";
+  }
+
+  async function handlePhotoUpload(e) {
+    e.preventDefault();
+    const title = document.getElementById("photoTitle").value;
+    const fileInput = document.getElementById("photoFile");
+    const file = fileInput.files[0];
+
+    if (!file) {
+      showToast("Please select a photo", "error");
+      return;
+    }
+
+    // Convert image to base64
+    const reader = new FileReader();
+    reader.onload = function (event) {
+      const imageData = event.target.result;
+
+      // Save to localStorage
+      const gallery = JSON.parse(localStorage.getItem("gallery")) || [];
+      gallery.push({
+        title: title,
+        image: imageData,
+      });
+      localStorage.setItem("gallery", JSON.stringify(gallery));
+
+      hideUploadModal();
+      loadGallery();
+      showToast("Photo uploaded successfully!", "success");
+      uploadForm.reset();
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function loadGallery() {
+    const isLoggedIn = localStorage.getItem("adminLoggedIn") === "true";
+    const gallery = JSON.parse(localStorage.getItem("gallery")) || [];
+    const defaultImages = [
+      {
+        title: "Awal Merintis",
+        image: "images/Awal-Merintis.jpg",
+      },
+      {
+        title: "Kondisi Sekarang",
+        image: "images/Sekarang.jpg",
+      },
+    ];
+
+    // Combine default images with uploaded images
+    const allImages = [...defaultImages, ...gallery];
+
+    if (!galleryContainer) return;
+
+    if (allImages.length === 0) {
+      galleryContainer.innerHTML = `
+        <div class="gallery-placeholder">
+          <i class="fas fa-image"></i>
+          <p>No photos yet. ${
+            isLoggedIn ? 'Click "Add Photo" to upload.' : "Check back later."
+          }</p>
+        </div>
+      `;
+    } else {
+      galleryContainer.innerHTML = allImages
+        .map(
+          (item, index) => `
+          <div class="gallery-item">
+            <img src="${item.image}" alt="${item.title}" class="gallery-img">
+            <h3>${item.title}</h3>
+            ${
+              isLoggedIn && index >= defaultImages.length
+                ? `
+              <button class="delete-btn" data-index="${
+                index - defaultImages.length
+              }">
+                <i class="fas fa-trash"></i>
+              </button>
+            `
+                : ""
+            }
+          </div>
+        `
+        )
+        .join("");
+
+      if (isLoggedIn) {
+        document.querySelectorAll(".delete-btn").forEach((btn) => {
+          btn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            deletePhoto(parseInt(btn.dataset.index));
+          });
+        });
+      }
+    }
+  }
+
+  function deletePhoto(index) {
+    const gallery = JSON.parse(localStorage.getItem("gallery")) || [];
+    gallery.splice(index, 1);
+    localStorage.setItem("gallery", JSON.stringify(gallery));
+    loadGallery();
+    showToast("Photo deleted", "success");
+  }
+
+  function showToast(message, type) {
+    const toast = document.createElement("div");
+    toast.className = `toast ${type}`;
+    toast.textContent = message;
+    document.body.appendChild(toast);
+
+    setTimeout(() => toast.classList.add("show"), 10);
+
+    setTimeout(() => {
+      toast.classList.remove("show");
+      setTimeout(() => toast.remove(), 300);
+    }, 3000);
+  }
+
+  // Initial load
+  loadGallery();
+}
+
+// Add this to your DOMContentLoaded event listener
+document.addEventListener("DOMContentLoaded", () => {
+  // ... existing code ...
+  initAdminSystem();
+});
