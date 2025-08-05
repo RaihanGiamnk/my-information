@@ -1745,3 +1745,16 @@ footer.addEventListener(
 footer.addEventListener("touchend", () => {
   clearTimeout(pressTimer);
 });
+// Tampilkan hint hanya di mobile dan hanya sekali per session
+if (
+  /Mobi|Android/i.test(navigator.userAgent) &&
+  !sessionStorage.getItem("hintShown")
+) {
+  const footer = document.querySelector(".site-footer");
+  footer.classList.add("show-hint");
+
+  setTimeout(() => {
+    footer.classList.remove("show-hint");
+    sessionStorage.setItem("hintShown", "true");
+  }, 5000);
+}

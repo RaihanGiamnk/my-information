@@ -2213,3 +2213,25 @@ footer {
 .footer-links a:hover {
   color: var(--secondary);
 }
+/* Long Press Feedback */
+.site-footer {
+  transition: background-color 0.3s ease;
+}
+
+.login-hint {
+  position: absolute;
+  bottom: 100%;
+  left: 0;
+  width: 100%;
+  padding: 0.5rem;
+  background: var(--primary);
+  color: white;
+  text-align: center;
+  font-size: 0.8rem;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.show-hint .login-hint {
+  opacity: 1;
+}
