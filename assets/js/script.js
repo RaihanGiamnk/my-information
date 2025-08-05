@@ -1520,48 +1520,47 @@ function initAdminSystem() {
       return;
     }
 
-    // Convert image to base64
-    const reader = new FileReader();
-    reader.onload = function (event) {
-      const imageData = event.target.result;
+    const formData = new FormData();
+    formData.append("title", title);
+    formData.append("photo", file);
 
-      // Save to localStorage
-      const gallery = JSON.parse(localStorage.getItem("gallery")) || [];
-      gallery.push({
-        title: title,
-        image: imageData,
+    try {
+      const response = await fetch("upload.php", {
+        method: "POST",
+        body: formData,
       });
-      localStorage.setItem("gallery", JSON.stringify(gallery));
 
-      hideUploadModal();
-      loadGallery();
-      showToast("Photo uploaded successfully!", "success");
-      uploadForm.reset();
-    };
-    reader.readAsDataURL(file);
+      if (response.ok) {
+        const result = await response.json();
+        if (result.success) {
+          hideUploadModal();
+          loadGallery();
+          showToast("Photo uploaded successfully!", "success");
+          uploadForm.reset();
+        } else {
+          showToast(result.message || "Upload failed", "error");
+        }
+      } else {
+        throw new Error("Network response was not ok");
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      showToast("Failed to upload photo", "error");
+    }
   }
 
-  function loadGallery() {
-    const isLoggedIn = localStorage.getItem("adminLoggedIn") === "true";
-    const gallery = JSON.parse(localStorage.getItem("gallery")) || [];
-    const defaultImages = [
-      {
-        title: "Awal Merintis",
-        image: "images/Awal-Merintis.jpg",
-      },
-      {
-        title: "Kondisi Sekarang",
-        image: "images/Sekarang.jpg",
-      },
-    ];
+  async function loadGallery() {
+    try {
+      const response = await fetch("get_gallery.php");
+      if (!response.ok) throw new Error("Network response was not ok");
 
-    // Combine default images with uploaded images
-    const allImages = [...defaultImages, ...gallery];
+      const gallery = await response.json();
+      const isLoggedIn = localStorage.getItem("adminLoggedIn") === "true";
 
-    if (!galleryContainer) return;
+      if (!galleryContainer) return;
 
-    if (allImages.length === 0) {
-      galleryContainer.innerHTML = `
+      if (gallery.length === 0) {
+        galleryContainer.innerHTML = `
         <div class="gallery-placeholder">
           <i class="fas fa-image"></i>
           <p>No photos yet. ${
@@ -1569,46 +1568,70 @@ function initAdminSystem() {
           }</p>
         </div>
       `;
-    } else {
-      galleryContainer.innerHTML = allImages
-        .map(
-          (item, index) => `
-          <div class="gallery-item">
-            <img src="${item.image}" alt="${item.title}" class="gallery-img">
-            <h3>${item.title}</h3>
-            ${
-              isLoggedIn && index >= defaultImages.length
-                ? `
-              <button class="delete-btn" data-index="${
-                index - defaultImages.length
-              }">
-                <i class="fas fa-trash"></i>
-              </button>
-            `
-                : ""
-            }
-          </div>
-        `
-        )
-        .join("");
+      } else {
+        galleryContainer.innerHTML = gallery
+          .map(
+            (item, index) => `
+        <div class="gallery-item">
+          <img src="uploads/${item.filename}" alt="${
+              item.title
+            }" class="gallery-img">
+          <h3>${item.title}</h3>
+          ${
+            isLoggedIn
+              ? `
+            <button class="delete-btn" data-id="${item.id}">
+              <i class="fas fa-trash"></i>
+            </button>
+          `
+              : ""
+          }
+        </div>
+      `
+          )
+          .join("");
 
-      if (isLoggedIn) {
-        document.querySelectorAll(".delete-btn").forEach((btn) => {
-          btn.addEventListener("click", (e) => {
-            e.stopPropagation();
-            deletePhoto(parseInt(btn.dataset.index));
+        if (isLoggedIn) {
+          document.querySelectorAll(".delete-btn").forEach((btn) => {
+            btn.addEventListener("click", (e) => {
+              e.stopPropagation();
+              deletePhoto(btn.dataset.id);
+            });
           });
-        });
+        }
       }
+    } catch (error) {
+      console.error("Error loading gallery:", error);
+      galleryContainer.innerHTML = `
+      <div class="error">
+        <i class="fas fa-exclamation-circle"></i>
+        <p>Failed to load gallery. Please try again later.</p>
+      </div>
+    `;
     }
   }
 
-  function deletePhoto(index) {
-    const gallery = JSON.parse(localStorage.getItem("gallery")) || [];
-    gallery.splice(index, 1);
-    localStorage.setItem("gallery", JSON.stringify(gallery));
-    loadGallery();
-    showToast("Photo deleted", "success");
+  async function deletePhoto(photoId) {
+    try {
+      const response = await fetch(`delete_photo.php?id=${photoId}`, {
+        method: "DELETE",
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        if (result.success) {
+          loadGallery();
+          showToast("Photo deleted", "success");
+        } else {
+          showToast(result.message || "Delete failed", "error");
+        }
+      } else {
+        throw new Error("Network response was not ok");
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      showToast("Failed to delete photo", "error");
+    }
   }
 
   function showToast(message, type) {
