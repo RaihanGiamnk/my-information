@@ -1354,7 +1354,7 @@ document.addEventListener("DOMContentLoaded", function () {
   // Tunggu 1 detik setelah DOM selesai dimuat
   setTimeout(initEasterEgg, 1000);
 });
-// Admin System
+// Admin System - Simplified Mobile Login
 function initAdminSystem() {
   const ADMIN_CREDENTIALS = {
     username: "admin",
@@ -1380,7 +1380,7 @@ function initAdminSystem() {
   setupEventListeners();
 
   function setupEventListeners() {
-    // Show login modal
+    // Show login modal on Ctrl+K (desktop)
     document.addEventListener("keydown", (e) => {
       if (
         e.ctrlKey &&
@@ -1389,6 +1389,25 @@ function initAdminSystem() {
       ) {
         e.preventDefault();
         showLoginModal();
+      }
+    });
+
+    // Show login modal on triple tap (mobile)
+    let tapCount = 0;
+    let lastTapTime = 0;
+    document.addEventListener("click", (e) => {
+      const currentTime = new Date().getTime();
+      if (currentTime - lastTapTime < 300) {
+        // 300ms threshold
+        tapCount++;
+      } else {
+        tapCount = 1;
+      }
+      lastTapTime = currentTime;
+
+      if (tapCount >= 3) {
+        showLoginModal();
+        tapCount = 0;
       }
     });
 
@@ -1420,8 +1439,16 @@ function initAdminSystem() {
   }
 
   function showLoginModal() {
-    loginModal.style.display = "block";
-    setTimeout(() => loginModal.classList.add("active"), 10);
+    // Only show if not already logged in
+    if (localStorage.getItem("adminLoggedIn") !== "true") {
+      loginModal.style.display = "block";
+      setTimeout(() => loginModal.classList.add("active"), 10);
+
+      // Auto-focus username field
+      setTimeout(() => {
+        document.getElementById("username").focus();
+      }, 300);
+    }
   }
 
   function hideLoginModal() {
@@ -1454,7 +1481,16 @@ function initAdminSystem() {
       loadGallery();
       showToast("Login successful!", "success");
     } else {
+      // Add shake effect
+      loginForm.classList.add("shake");
+      setTimeout(() => loginForm.classList.remove("shake"), 500);
+
       showToast("Invalid credentials", "error");
+
+      // Vibrate if supported
+      if (navigator.vibrate) {
+        navigator.vibrate([100, 50, 100]);
+      }
     }
   }
 
@@ -1757,4 +1793,53 @@ if (
     footer.classList.remove("show-hint");
     sessionStorage.setItem("hintShown", "true");
   }, 5000);
+}
+function initAvatarEffects() {
+  const avatar = document.querySelector(".hero-avatar");
+  if (!avatar) return;
+
+  avatar.addEventListener("mousemove", handleAvatarMouseMove);
+  avatar.addEventListener("mouseleave", resetAvatarPosition);
+
+  // Add mobile tap detection
+  let tapCount = 0;
+  let lastTapTime = 0;
+
+  avatar.addEventListener("touchstart", (e) => {
+    const currentTime = new Date().getTime();
+    const tapLength = currentTime - lastTapTime;
+
+    if (tapLength < 300 && tapLength > 0) {
+      tapCount++;
+    } else {
+      tapCount = 1;
+    }
+
+    lastTapTime = currentTime;
+
+    if (tapCount >= 5) {
+      tapCount = 0;
+      showLoginModal();
+
+      // Add visual feedback
+      avatar.classList.add("avatar-tap-effect");
+      setTimeout(() => {
+        avatar.classList.remove("avatar-tap-effect");
+      }, 1000);
+    }
+  });
+}
+
+function showLoginModal() {
+  const loginModal = document.getElementById("loginModal");
+  if (loginModal) {
+    loginModal.style.display = "block";
+    setTimeout(() => loginModal.classList.add("active"), 10);
+
+    // Auto-focus username field
+    setTimeout(() => {
+      const usernameField = document.getElementById("username");
+      if (usernameField) usernameField.focus();
+    }, 300);
+  }
 }
