@@ -1358,7 +1358,7 @@ document.addEventListener("DOMContentLoaded", function () {
 function initAdminSystem() {
   const ADMIN_CREDENTIALS = {
     username: "admin",
-    password: "raihangimank123", // Change this to a secure password
+    password: "raihangimank123",
   };
 
   const loginModal = document.getElementById("loginModal");
@@ -1392,23 +1392,27 @@ function initAdminSystem() {
       }
     });
 
-    // Show login modal on triple tap (mobile)
-    let tapCount = 0;
-    let lastTapTime = 0;
-    document.addEventListener("click", (e) => {
-      const currentTime = new Date().getTime();
-      if (currentTime - lastTapTime < 300) {
-        // 300ms threshold
-        tapCount++;
-      } else {
-        tapCount = 1;
-      }
-      lastTapTime = currentTime;
+    // Remove the problematic triple tap listener
+    // And replace it with a more controlled long press on footer
+    const footer = document.querySelector("footer") || document.body;
 
-      if (tapCount >= 3) {
-        showLoginModal();
-        tapCount = 0;
-      }
+    let pressTimer;
+    footer.addEventListener(
+      "touchstart",
+      (e) => {
+        if (localStorage.getItem("adminLoggedIn") === "true") return;
+
+        // Only start timer if touch is on footer
+        pressTimer = setTimeout(() => {
+          showLoginModal();
+          if (navigator.vibrate) navigator.vibrate(100);
+        }, 2000); // 2 second long press
+      },
+      { passive: true }
+    );
+
+    footer.addEventListener("touchend", () => {
+      clearTimeout(pressTimer);
     });
 
     // Close modals
@@ -1630,56 +1634,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // ... existing code ...
   initAdminSystem();
 });
-// Mobile Secret Login (3x tap + swipe up)
-let touchStartY = 0;
-let tapCount = 0;
-let lastTapTime = 0;
 
-document.addEventListener(
-  "touchstart",
-  (e) => {
-    // Reset tap count if too much time passed between taps
-    const currentTime = new Date().getTime();
-    if (currentTime - lastTapTime > 300) {
-      // 300ms threshold
-      tapCount = 0;
-    }
-    lastTapTime = currentTime;
-
-    // Count taps
-    tapCount++;
-    touchStartY = e.touches[0].clientY;
-
-    // If 3 taps detected, prepare for swipe up
-    if (tapCount >= 3) {
-      // Show visual feedback (subtle vibration if supported)
-      if (navigator.vibrate) {
-        navigator.vibrate(100);
-      }
-    }
-  },
-  false
-);
-
-document.addEventListener(
-  "touchend",
-  (e) => {
-    if (tapCount >= 3) {
-      const touchEndY = e.changedTouches[0].clientY;
-      const swipeDistance = touchStartY - touchEndY;
-
-      // If swipe up is more than 100px
-      if (swipeDistance > 100) {
-        // Check if already logged in
-        if (localStorage.getItem("adminLoggedIn") !== "true") {
-          showLoginModal();
-        }
-        tapCount = 0; // Reset counter
-      }
-    }
-  },
-  false
-);
 function showLoginModal() {
   // Add visual feedback
   document.body.classList.add("secret-login-active");
