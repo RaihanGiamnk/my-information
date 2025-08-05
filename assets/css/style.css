@@ -2153,3 +2153,29 @@ body.secret-login-active::after {
 .shake {
   animation: shake 0.5s ease-in-out;
 }
+/* Long Press Feedback */
+body::before {
+  content: "Tekan lama 3 detik untuk login admin";
+  position: fixed;
+  bottom: 10px;
+  left: 0;
+  width: 100%;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 0.8rem;
+  z-index: 100;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+body.show-login-hint::before {
+  opacity: 1;
+}
+
+/* Footer styling for better long press area */
+footer {
+  padding: 20px 0;
+  position: relative;
+  z-index: 1;
+  min-height: 50px;
+}

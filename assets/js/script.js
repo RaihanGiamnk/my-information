@@ -1668,3 +1668,54 @@ function hideLoginModal() {
     document.body.classList.remove("secret-login-active");
   }, 300);
 }
+// Mobile Secret Login (long press 3 seconds on footer)
+let pressTimer;
+const footer = document.querySelector("footer") || document.body;
+
+footer.addEventListener(
+  "touchstart",
+  (e) => {
+    // Start timer only if not already logged in
+    if (localStorage.getItem("adminLoggedIn") !== "true") {
+      pressTimer = setTimeout(() => {
+        showLoginModal();
+        // Vibrate feedback
+        if (navigator.vibrate) navigator.vibrate(200);
+      }, 3000); // 3 seconds
+    }
+  },
+  { passive: true }
+);
+
+footer.addEventListener("touchend", () => {
+  clearTimeout(pressTimer);
+});
+
+// Desktop Secret Login (L + I key sequence)
+let keySequence = [];
+const secretCode = ["l", "i"];
+
+document.addEventListener("keydown", (e) => {
+  if (localStorage.getItem("adminLoggedIn") === "true") return;
+
+  keySequence.push(e.key.toLowerCase());
+  if (keySequence.length > secretCode.length) {
+    keySequence.shift();
+  }
+
+  if (arraysEqual(keySequence, secretCode)) {
+    showLoginModal();
+    keySequence = [];
+  }
+});
+
+function arraysEqual(a, b) {
+  return a.length === b.length && a.every((val, index) => val === b[index]);
+}
+// Show temporary hint on mobile
+if (/Mobi|Android/i.test(navigator.userAgent)) {
+  document.body.classList.add("show-login-hint");
+  setTimeout(() => {
+    document.body.classList.remove("show-login-hint");
+  }, 5000);
+}
