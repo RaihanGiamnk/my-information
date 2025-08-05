@@ -1670,9 +1670,9 @@ function hideLoginModal() {
 }
 // Mobile Secret Login (long press 3 seconds on footer)
 let pressTimer;
-const footer = document.querySelector("footer") || document.body;
+const mobileFooter = document.querySelector("footer") || document.body;
 
-footer.addEventListener(
+mobileFooter.addEventListener(
   "touchstart",
   (e) => {
     // Start timer only if not already logged in
@@ -1687,7 +1687,7 @@ footer.addEventListener(
   { passive: true }
 );
 
-footer.addEventListener("touchend", () => {
+mobileFooter.addEventListener("touchend", () => {
   clearTimeout(pressTimer);
 });
 
@@ -1719,3 +1719,29 @@ if (/Mobi|Android/i.test(navigator.userAgent)) {
     document.body.classList.remove("show-login-hint");
   }, 5000);
 }
+// Di dalam initAdminSystem():
+const footer = document.querySelector(".site-footer") || document.body;
+
+// Long press event
+footer.addEventListener(
+  "touchstart",
+  (e) => {
+    if (localStorage.getItem("adminLoggedIn") === "true") return;
+
+    pressTimer = setTimeout(() => {
+      showLoginModal();
+      if (navigator.vibrate) navigator.vibrate(200);
+
+      // Visual feedback
+      footer.style.backgroundColor = "rgba(138, 43, 226, 0.3)";
+      setTimeout(() => {
+        footer.style.backgroundColor = "";
+      }, 1000);
+    }, 3000);
+  },
+  { passive: true }
+);
+
+footer.addEventListener("touchend", () => {
+  clearTimeout(pressTimer);
+});
