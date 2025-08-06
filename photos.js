@@ -2,17 +2,10 @@
 const galleryPhotos = [
   {
     id: "1",
-    title: "Awal Merintis",
-    filename: "images/Awal-Merintis.jpg",
-    description: "Foto pertama saat mulai membuat konten",
-    uploaded_at: "2023-01-01",
-  },
-  {
-    id: "2",
-    title: "Kondisi Sekarang",
+    title: "My SetUp",
     filename: "images/Sekarang.jpg",
-    description: "Perkembangan terbaru dalam pembuatan konten",
-    uploaded_at: "2023-01-02",
+    description: "My SetUp",
+    uploaded_at: "2023-01-01",
   },
 ];
 
