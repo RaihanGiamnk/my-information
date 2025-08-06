@@ -10,7 +10,7 @@ const galleryPhotos = [
   {
     id: "2",
     title: "Kondisi Sekarang",
-    filename: "images/sekarang.jpg",
+    filename: "images/Sekarang.jpg",
     description: "Perkembangan terbaru dalam pembuatan konten",
     uploaded_at: "2023-01-02",
   },
