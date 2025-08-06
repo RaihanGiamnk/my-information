@@ -1354,3 +1354,71 @@ document.addEventListener("DOMContentLoaded", function () {
   // Tunggu 1 detik setelah DOM selesai dimuat
   setTimeout(initEasterEgg, 1000);
 });
+// Tambahkan di dalam DOMContentLoaded
+function initSkillsInteraction() {
+  const skillItems = document.querySelectorAll(".skill-item");
+
+  skillItems.forEach((item) => {
+    item.addEventListener("click", function () {
+      // Jika skill ini sudah aktif, nonaktifkan
+      if (this.classList.contains("active")) {
+        this.classList.remove("active");
+      } else {
+        // Nonaktifkan semua skill lainnya
+        skillItems.forEach((skill) => {
+          skill.classList.remove("active");
+        });
+        // Aktifkan skill yang diklik
+        this.classList.add("active");
+      }
+    });
+  });
+
+  // Tutup skill saat klik di luar
+  document.addEventListener("click", function (e) {
+    if (!e.target.closest(".skill-item")) {
+      skillItems.forEach((skill) => {
+        skill.classList.remove("active");
+      });
+    }
+  });
+}
+
+// Panggil fungsi ini di DOMContentLoaded
+document.addEventListener("DOMContentLoaded", () => {
+  // ... kode yang ada ...
+  initSkillsInteraction();
+});
+function initSkillsInteraction() {
+  const skillItems = document.querySelectorAll(".skill-item");
+
+  skillItems.forEach((item) => {
+    item.addEventListener("click", function () {
+      // Add slight glow effect
+      const glow = document.createElement("div");
+      glow.className = "skill-glow";
+      this.appendChild(glow);
+
+      setTimeout(() => {
+        glow.remove();
+      }, 500);
+
+      if (this.classList.contains("active")) {
+        this.classList.remove("active");
+      } else {
+        skillItems.forEach((skill) => {
+          skill.classList.remove("active");
+        });
+        this.classList.add("active");
+      }
+    });
+  });
+
+  document.addEventListener("click", function (e) {
+    if (!e.target.closest(".skill-item")) {
+      skillItems.forEach((skill) => {
+        skill.classList.remove("active");
+      });
+    }
+  });
+}

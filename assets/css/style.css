@@ -2248,3 +2248,102 @@ footer {
     box-shadow: 0 0 0 30px rgba(0, 245, 212, 0);
   }
 }
+/* Skill Details Enhancement */
+.skill-details {
+  max-height: 0;
+  overflow: hidden;
+  transition: all 0.5s cubic-bezier(0.65, 0, 0.35, 1);
+  color: var(--light);
+  font-size: 0.95rem;
+  text-align: center;
+  margin-top: 0;
+  padding: 0 1rem;
+  opacity: 0;
+  transform: translateY(10px);
+  line-height: 1.6;
+}
+
+.skill-item.active .skill-details {
+  max-height: 300px;
+  margin-top: 1.5rem;
+  opacity: 1;
+  transform: translateY(0);
+  padding: 1rem;
+  background: var(--glass);
+  backdrop-filter: blur(10px);
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.skill-details p {
+  margin: 0;
+  position: relative;
+  padding-left: 1.5rem;
+}
+
+.skill-details p::before {
+  content: "•";
+  position: absolute;
+  left: 0;
+  color: var(--secondary);
+  font-size: 1.2rem;
+  line-height: 1;
+}
+
+.skill-item.active .skill-icon {
+  transform: rotate(15deg) scale(1.2);
+  color: var(--secondary-light);
+  text-shadow: 0 0 10px rgba(0, 245, 212, 0.5);
+}
+
+.skill-item.active .skill-name {
+  color: var(--light);
+  font-weight: 700;
+  text-shadow: 0 0 5px rgba(255, 255, 255, 0.3);
+  position: relative;
+  display: inline-block;
+}
+
+.skill-item.active .skill-name::after {
+  content: "";
+  position: absolute;
+  bottom: -5px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: var(--gradient);
+  transform: scaleX(1);
+  transform-origin: left;
+  transition: transform 0.3s ease;
+}
+.skill-glow {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(
+    circle at center,
+    rgba(138, 43, 226, 0.4) 0%,
+    transparent 70%
+  );
+  animation: glowPulse 0.5s ease-out;
+  z-index: -1;
+  border-radius: 10px;
+}
+
+@keyframes glowPulse {
+  0% {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.05);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.2);
+  }
+}
