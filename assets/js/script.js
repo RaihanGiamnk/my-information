@@ -1422,3 +1422,200 @@ function initSkillsInteraction() {
     }
   });
 }
+// Add to your script.js
+function initSkillsInteraction() {
+  const skillItems = document.querySelectorAll(".skill-item");
+
+  skillItems.forEach((item) => {
+    item.addEventListener("click", function () {
+      // Add slight glow effect
+      const glow = document.createElement("div");
+      glow.className = "skill-glow";
+      this.appendChild(glow);
+
+      setTimeout(() => {
+        glow.remove();
+      }, 500);
+
+      if (this.classList.contains("active")) {
+        this.classList.remove("active");
+      } else {
+        skillItems.forEach((skill) => {
+          skill.classList.remove("active");
+        });
+        this.classList.add("active");
+      }
+    });
+  });
+
+  document.addEventListener("click", function (e) {
+    if (!e.target.closest(".skill-item")) {
+      skillItems.forEach((skill) => {
+        skill.classList.remove("active");
+      });
+    }
+  });
+}
+// Tambahkan ke script.js
+
+/**
+ * Avatar Interaction System
+ */
+function initAvatarInteraction() {
+  const avatar = document.querySelector(".hero-avatar");
+  if (!avatar) return;
+
+  // Add tap/click effect
+  avatar.addEventListener("click", function () {
+    this.classList.add("avatar-tap-effect");
+    setTimeout(() => this.classList.remove("avatar-tap-effect"), 500);
+
+    // Show random message
+    showAvatarMessage();
+  });
+
+  // Add hover effect
+  avatar.addEventListener("mouseenter", function () {
+    this.querySelector(".avatar-glow").style.opacity = "0.6";
+  });
+
+  avatar.addEventListener("mouseleave", function () {
+    this.querySelector(".avatar-glow").style.opacity = "0.3";
+  });
+
+  // Add drag interaction
+  let isDragging = false;
+  let startX, startY, startTranslateX, startTranslateY;
+
+  avatar.addEventListener("mousedown", function (e) {
+    isDragging = true;
+    startX = e.clientX;
+    startY = e.clientY;
+
+    const transform = window.getComputedStyle(this).transform;
+    if (transform !== "none") {
+      const matrix = transform.match(/^matrix\((.+)\)$/);
+      if (matrix) {
+        const values = matrix[1].split(", ");
+        startTranslateX = parseFloat(values[4]);
+        startTranslateY = parseFloat(values[5]);
+      }
+    } else {
+      startTranslateX = 0;
+      startTranslateY = 0;
+    }
+
+    this.style.cursor = "grabbing";
+    this.style.transition = "none";
+  });
+
+  document.addEventListener("mousemove", function (e) {
+    if (!isDragging) return;
+
+    const dx = e.clientX - startX;
+    const dy = e.clientY - startY;
+
+    avatar.style.transform = `translate(${startTranslateX + dx}px, ${
+      startTranslateY + dy
+    }px) rotate(0deg)`;
+  });
+
+  document.addEventListener("mouseup", function () {
+    if (!isDragging) return;
+
+    isDragging = false;
+    avatar.style.cursor = "pointer";
+    avatar.style.transition = "transform 0.3s ease";
+
+    // Return to original position
+    setTimeout(() => {
+      avatar.style.transform = "translate(0, 0) rotate(0deg)";
+    }, 1000);
+  });
+
+  // Touch support
+  avatar.addEventListener("touchstart", function (e) {
+    isDragging = true;
+    startX = e.touches[0].clientX;
+    startY = e.touches[0].clientY;
+
+    const transform = window.getComputedStyle(this).transform;
+    if (transform !== "none") {
+      const matrix = transform.match(/^matrix\((.+)\)$/);
+      if (matrix) {
+        const values = matrix[1].split(", ");
+        startTranslateX = parseFloat(values[4]);
+        startTranslateY = parseFloat(values[5]);
+      }
+    } else {
+      startTranslateX = 0;
+      startTranslateY = 0;
+    }
+
+    this.style.transition = "none";
+    e.preventDefault();
+  });
+
+  document.addEventListener("touchmove", function (e) {
+    if (!isDragging) return;
+
+    const dx = e.touches[0].clientX - startX;
+    const dy = e.touches[0].clientY - startY;
+
+    avatar.style.transform = `translate(${startTranslateX + dx}px, ${
+      startTranslateY + dy
+    }px) rotate(0deg)`;
+    e.preventDefault();
+  });
+
+  document.addEventListener("touchend", function () {
+    if (!isDragging) return;
+
+    isDragging = false;
+    avatar.style.transition = "transform 0.3s ease";
+
+    // Return to original position
+    setTimeout(() => {
+      avatar.style.transform = "translate(0, 0) rotate(0deg)";
+    }, 1000);
+  });
+}
+
+function showAvatarMessage() {
+  const messages = [
+    "Hey there! 👋",
+    "Nice to see you! 😊",
+    "Want to collaborate? 🤝",
+    "Check out my videos! 🎥",
+    "Thanks for visiting! ❤️",
+    "Let's create something awesome! ✨",
+  ];
+
+  const randomMessage = messages[Math.floor(Math.random() * messages.length)];
+
+  // Create message element
+  const messageElement = document.createElement("div");
+  messageElement.className = "avatar-message";
+  messageElement.textContent = randomMessage;
+
+  // Position near the avatar
+  const avatar = document.querySelector(".hero-avatar");
+  avatar.appendChild(messageElement);
+
+  // Animate
+  messageElement.style.opacity = "1";
+  messageElement.style.transform = "translateY(0)";
+
+  // Remove after animation
+  setTimeout(() => {
+    messageElement.style.opacity = "0";
+    messageElement.style.transform = "translateY(-20px)";
+    setTimeout(() => messageElement.remove(), 500);
+  }, 3000);
+}
+
+// Initialize when DOM is ready
+document.addEventListener("DOMContentLoaded", () => {
+  // ... other initializations ...
+  initAvatarInteraction();
+});

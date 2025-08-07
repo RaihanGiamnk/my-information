@@ -19,13 +19,17 @@
       href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"
     />
     <link rel="stylesheet" href="assets/css/style.css" />
+    <link rel="icon" href="images/ICON.jpg" type="image/jpeg" />
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/loaders/GLTFLoader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@ar-js-org/ar.js@3.4.0/dist/ar.js"></script>
   </head>
   <body>
     <!-- Background Elements -->
     <div class="bg-gradient"></div>
     <div class="bg-pattern"></div>
     <canvas id="molecules"></canvas>
-    <link rel="icon" href="images/ICON.jpg" type="image/jpeg" />
 
     <!-- Header -->
     <header class="animate__animated animate__fadeInDown">
@@ -80,12 +84,12 @@
           </p>
 
           <div class="hero-btns">
-            <a href="#videos" class="btn btn-primary">
-              <i class="fas fa-play"></i> View My Work
-            </a>
-            <a href="#contact" class="btn btn-secondary">
-              <i class="fas fa-handshake"></i> Collaborate
-            </a>
+            <a href="#videos" class="btn btn-primary"
+              ><i class="fas fa-play"></i> View My Work</a
+            >
+            <a href="#contact" class="btn btn-secondary"
+              ><i class="fas fa-handshake"></i> Collaborate</a
+            >
           </div>
 
           <div class="hero-stats">
@@ -126,7 +130,6 @@
     <section id="gallery" class="gallery-section">
       <h2 class="section-title">My Gallery</h2>
       <div class="gallery-grid" id="galleryContainer">
-        <!-- Gallery items will be loaded via JavaScript -->
         <div class="gallery-placeholder">
           <i class="fas fa-image"></i>
           <p>No photos available at the moment</p>
@@ -269,8 +272,8 @@
 
     <!-- Floating Particles Background -->
     <div class="floating-particles" id="particles"></div>
-    <!-- Interactive Particles Canvas -->
     <canvas id="interactive-bg"></canvas>
+
     <!-- Splash Screen -->
     <div class="splash-screen">
       <img src="images/LOGO.jpg" alt="Logo" class="splash-logo" />
@@ -280,11 +283,13 @@
         <div class="loading-progress"></div>
       </div>
     </div>
+
     <div class="floating-elements">
       <div class="floating-element shape1"></div>
       <div class="floating-element shape2"></div>
       <div class="floating-element shape3"></div>
     </div>
+
     <div class="achievement-toast" id="achievementToast">
       <div class="achievement-icon"><i class="fas fa-trophy"></i></div>
       <div class="achievement-content">
@@ -304,14 +309,23 @@
         <span>Support Me</span>
       </a>
     </div>
+
     <!-- Easter Egg Element -->
     <div id="easter-egg" class="easter-egg">
       <div class="initials">F?</div>
       <div class="message">Siapa ini???</div>
     </div>
 
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/loaders/GLTFLoader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/WebGL.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@ar-js-org/ar.js@3.4.0/dist/ar.js"></script>
+
     <script src="assets/js/script.js"></script>
     <script src="assets/js/bg-particles.js"></script>
-    <script src="photos.js"></script>
+    <script src="assets/js/avatar-ar.js"></script>
+    <script src="assets/js/photos.js"></script>
   </body>
 </html>
