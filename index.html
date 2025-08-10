@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>RaihanGimank | Content Creator</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"
+    />
+    <link rel="stylesheet" href="assets/css/style.css" />
+    <link rel="icon" href="images/ICON.jpg" type="image/jpeg" />
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/loaders/GLTFLoader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@ar-js-org/ar.js@3.4.0/dist/ar.js"></script>
+  </head>
+  <body>
+    <!-- Background Elements -->
+    <div class="bg-gradient"></div>
+    <div class="bg-pattern"></div>
+    <canvas id="molecules"></canvas>
+
+    <!-- Header -->
+    <header class="animate__animated animate__fadeInDown">
+      <div class="logo">
+        <img src="images/LOGO.jpg" alt="RaihanGimank" class="logo-img" />
+        <div class="logo-text">
+          <h1>RaihanGimank</h1>
+          <p>Content Creator</p>
+        </div>
+      </div>
+
+      <nav>
+        <ul>
+          <li>
+            <a href="#home" class="nav-link active"
+              ><i class="fas fa-home"></i> Home</a
+            >
+          </li>
+          <li>
+            <a href="#videos" class="nav-link"
+              ><i class="fas fa-play-circle"></i> Videos</a
+            >
+          </li>
+          <li>
+            <a href="#gallery" class="nav-link"
+              ><i class="fas fa-images"></i> Gallery</a
+            >
+          </li>
+          <li>
+            <a href="#about" class="nav-link"
+              ><i class="fas fa-user"></i> About</a
+            >
+          </li>
+          <li>
+            <a href="#contact" class="nav-link"
+              ><i class="fas fa-envelope"></i> Contact</a
+            >
+          </li>
+        </ul>
+      </nav>
+    </header>
+
+    <!-- Hero Section -->
+    <section id="home" class="hero">
+      <div class="hero-content animate__animated animate__fadeIn">
+        <div class="hero-text">
+          <h2>Content Creator</h2>
+          <h1>Membuat Semua Orang Bahagia</h1>
+          <p>
+            Agar bisa terus membuat orang tersenyum, karena senyuman mereka
+            adalah kebahagiaan untukku.
+          </p>
+
+          <div class="hero-btns">
+            <a href="#videos" class="btn btn-primary"
+              ><i class="fas fa-play"></i> View My Work</a
+            >
+            <a href="#contact" class="btn btn-secondary"
+              ><i class="fas fa-handshake"></i> Collaborate</a
+            >
+          </div>
+
+          <div class="hero-stats">
+            <div class="stat-item">
+              <div class="stat-number" id="subscriberCount">0</div>
+              <div class="stat-label">Subscribers</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-number" id="videoCount">0</div>
+              <div class="stat-label">Videos</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-number" id="viewCount">0</div>
+              <div class="stat-label">Total Views</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="hero-avatar">
+          <img src="images/profile.jpg" alt="RaihanGimank" class="avatar-img" />
+          <div class="avatar-frame"></div>
+          <div class="avatar-glow"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Videos Section -->
+    <section id="videos" class="featured-work">
+      <h2 class="section-title">My YouTube Videos</h2>
+      <div class="work-grid" id="youtube-videos-container">
+        <div class="loading-spinner">
+          <i class="fas fa-spinner fa-spin"></i> Loading videos...
+        </div>
+      </div>
+    </section>
+
+    <!-- Gallery Section -->
+    <section id="gallery" class="gallery-section">
+      <h2 class="section-title">My Gallery</h2>
+      <div class="gallery-grid" id="galleryContainer">
+        <div class="gallery-placeholder">
+          <i class="fas fa-image"></i>
+          <p>No photos available at the moment</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="about-section">
+      <div class="about-content">
+        <h2 class="section-title">About Me</h2>
+        <div class="about-text">
+          <p>
+            Oiy cuyyy, gua raihan gimank disini sebagai konten kreator gabut
+            atau ngonten kalo ada waktu doang🗿
+          </p>
+          <p>
+            Dengan pengalaman bertahun-tahun dalam pembuatan konten, saya
+            mencoba untuk membuat website seperti ini kerena saya gabut, jadi
+            membuat website ini untuk mengisi waktu luang saya, dan juga untuk
+            menyalurkan hobi saya dalam membuat konten digital.
+          </p>
+          <div class="skills-container">
+            <h3>My Skills</h3>
+            <div class="skills-grid">
+              <div class="skill-item">
+                <div class="skill-icon"><i class="fas fa-video"></i></div>
+                <div class="skill-name">Video Editing</div>
+                <div class="skill-details">
+                  <p>Menguasai CapCut & After Effect</p>
+                  <p>1 tahun pengalaman</p>
+                  <p>3D video tipis2</p>
+                </div>
+              </div>
+              <div class="skill-item">
+                <div class="skill-icon"><i class="fas fa-camera"></i></div>
+                <div class="skill-name">Foto Editing</div>
+                <div class="skill-details">
+                  <p>Adobe Photoshop & Picsart</p>
+                  <p>Retouching expert</p>
+                  <p>Creative photo manipulation</p>
+                </div>
+              </div>
+              <div class="skill-item">
+                <div class="skill-icon"><i class="fas fa-lightbulb"></i></div>
+                <div class="skill-name">Content Creation</div>
+                <div class="skill-details">
+                  <p>Viral content strategist</p>
+                  <p>Trend analysis</p>
+                  <p>Multi-platform content</p>
+                </div>
+              </div>
+              <div class="skill-item">
+                <div class="skill-icon">
+                  <i class="fas fa-laugh-squint"></i>
+                </div>
+                <div class="skill-name">Entertainment</div>
+                <div class="skill-details">
+                  <p>Comedy content creator</p>
+                  <p>Engaging storytelling</p>
+                  <p>Audience interaction</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="contact-section">
+      <h2 class="section-title">Kontak saya lewat sini</h2>
+      <form
+        id="contactForm"
+        class="contact-form"
+        action="https://formspree.io/f/xldlldwa"
+        method="POST"
+      >
+        <div class="form-group">
+          <input type="text" name="name" placeholder="Nama Kamu" required />
+        </div>
+        <div class="form-group">
+          <input
+            type="email"
+            name="_replyto"
+            placeholder="Email Kamu"
+            required
+          />
+        </div>
+        <div class="form-group">
+          <textarea
+            name="message"
+            placeholder="Mau kirim pesan apa??"
+            required
+          ></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">
+          <span id="submitText">Send Message</span>
+          <i
+            id="loadingSpinner"
+            class="fas fa-spinner fa-spin"
+            style="display: none"
+          ></i>
+        </button>
+        <div id="formMessage" class="form-message"></div>
+      </form>
+    </section>
+
+    <!-- Social Media Buttons -->
+    <div class="social-floating">
+      <a
+        href="https://instagram.com/raihanmubarok086"
+        target="_blank"
+        class="social-btn instagram"
+      >
+        <i class="fab fa-instagram"></i>
+      </a>
+      <a
+        href="https://tiktok.com/@raihangimank12"
+        target="_blank"
+        class="social-btn tiktok"
+      >
+        <i class="fab fa-tiktok"></i>
+      </a>
+      <a
+        href="https://facebook.com/RaihanGimank"
+        target="_blank"
+        class="social-btn facebook"
+      >
+        <i class="fab fa-facebook-f"></i>
+      </a>
+      <a
+        href="https://youtube.com/@RaihanGimank"
+        target="_blank"
+        class="social-btn youtube"
+      >
+        <i class="fab fa-youtube"></i>
+      </a>
+    </div>
+
+    <!-- Floating Particles Background -->
+    <div class="floating-particles" id="particles"></div>
+    <canvas id="interactive-bg"></canvas>
+
+    <!-- Splash Screen -->
+    <div class="splash-screen">
+      <img src="images/LOGO.jpg" alt="Logo" class="splash-logo" />
+      <h1 class="splash-text">RaihanGimank</h1>
+      <p class="splash-subtext">Content Creator</p>
+      <div class="loading-bar">
+        <div class="loading-progress"></div>
+      </div>
+    </div>
+
+    <div class="floating-elements">
+      <div class="floating-element shape1"></div>
+      <div class="floating-element shape2"></div>
+      <div class="floating-element shape3"></div>
+    </div>
+
+    <div class="achievement-toast" id="achievementToast">
+      <div class="achievement-icon"><i class="fas fa-trophy"></i></div>
+      <div class="achievement-content">
+        <h4>New Achievement Unlocked!</h4>
+        <p id="achievementMessage"></p>
+      </div>
+    </div>
+
+    <!-- Support Me Button -->
+    <div class="support-container">
+      <a
+        href="https://trakteer.id/RaihanGimank"
+        target="_blank"
+        class="support-btn"
+      >
+        <i class="fas fa-heart"></i>
+        <span>Support Me</span>
+      </a>
+    </div>
+
+    <!-- Easter Egg Element -->
+    <div id="easter-egg" class="easter-egg">
+      <div class="initials">F?</div>
+      <div class="message">Siapa ini???</div>
+    </div>
+<!-- Ganti bagian chatbot di HTML dengan ini -->
+<div id="chatbot-container">
+  <div class="chatbot-header">
+    <h3>RaihanGimank AI</h3>
+    <button id="chatbot-close"><i class="fas fa-times"></i></button>
+    <button id="chatbot-minimize"><i class="fas fa-minus"></i></button>
+  </div>
+  <div id="chatbot-messages"></div>
+  <div class="chatbot-input">
+    <input type="text" id="chatbot-input" placeholder="Tanya apa saja..." />
+    <button id="chatbot-send"><i class="fas fa-paper-plane"></i></button>
+  </div>
+</div>
+<button id="chatbot-toggle" class="chatbot-toggle-btn">
+  <i class="fas fa-robot"></i>
+</button>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/loaders/GLTFLoader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/WebGL.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@ar-js-org/ar.js@3.4.0/dist/ar.js"></script>
+
+    <script src="assets/js/script.js"></script>
+    <script src="assets/js/bg-particles.js"></script>
+    <script src="assets/js/photos.js"></script>
+    <script src="assets/js/ai-chatbot.js"></script>
+  </body>
+</html>
