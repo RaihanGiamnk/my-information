@@ -15,8 +15,6 @@ document.addEventListener("DOMContentLoaded", () => {
   initFloatingParticles();
 });
 
-require('dotenv').config();
-
 /**
  * Header Effects
  */
@@ -1458,3 +1456,4 @@ function initSkillsInteraction() {
     }
   });
 }
+require('dotenv').config();
