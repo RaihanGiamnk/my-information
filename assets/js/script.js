@@ -1456,4 +1456,3 @@ function initSkillsInteraction() {
     }
   });
 }
-require('dotenv').config();
