@@ -1,4 +1,3 @@
-require('dotenv').config();
 // Initialize when DOM is ready
 document.addEventListener("DOMContentLoaded", () => {
   // Then initialize other components
@@ -15,6 +14,8 @@ document.addEventListener("DOMContentLoaded", () => {
   initTypewriter();
   initFloatingParticles();
 });
+
+require('dotenv').config();
 
 /**
  * Header Effects
